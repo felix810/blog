@@ -92,17 +92,18 @@
         }
         /* 内容区 */
         .container {
-            max-width: 1100px;
+            max-width: 1500px; /* 宽度从1300px增至1500px */
             margin: 120px auto 20px;
             display: flex;
-            gap: 20px;
+            gap: 30px;
             padding: 0 20px;
         }
         main {
-            flex: 2;
+            flex: 2; /* main随容器宽度自适应扩展 */
         }
         aside {
-            flex: 1;
+            width: 350px; /* aside固定宽度350px */
+            flex-shrink: 0; /* 防止宽度压缩 */
         }
         .section {
             background-color: #FFFFFF;
@@ -168,31 +169,6 @@
         .article-share a:hover {
             color: #F5A623;
         }
-        /* 订阅 */
-        .subscription form {
-            display: flex;
-            gap: 10px;
-        }
-        .subscription input[type="email"] {
-            padding: 12px;
-            border: 2px solid #E9F1FF;
-            border-radius: 8px;
-            flex-grow: 1;
-            font-size: 1em;
-        }
-        .subscription button {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #F5A623, #FF7F50);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.3s;
-        }
-        .subscription button:hover {
-            transform: scale(1.05);
-        }
         /* 侧边栏 */
         aside .section {
             padding: 20px;
@@ -233,127 +209,127 @@
     </style>
 </head>
 <body>
-<div class="top-bar">
-    <h1>Java技术站</h1>
-</div>
-<nav>
-    <ul>
-        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a>
-            <div class="dropdown">
-                <a href="#">Java 22新特性</a>
-                <a href="#">并发编程</a>
-            </div>
-        </li>
-        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
-            <div class="dropdown">
-                <a href="#">Spring Boot</a>
-                <a href="#">Spring Security</a>
-            </div>
-        </li>
-        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a>
-            <div class="dropdown">
-                <a href="#">Hibernate</a>
-                <a href="#">JPA</a>
-            </div>
-        </li>
-        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a>
-            <div class="dropdown">
-                <a href="#">Maven</a>
-                <a href="#">Gradle</a>
-            </div>
-        </li>
-        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a>
-            <div class="dropdown">
-                <a href="#">Quarkus</a>
-                <a href="#">Spring Cloud</a>
-            </div>
-        </li>
-        <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a>
-            <div class="dropdown">
-                <a href="#">JUnit</a>
-                <a href="#">Mockito</a>
-            </div>
-        </li>
-    </ul>
-</nav>
-<div class="container">
-    <main>
-        <section class="section about">
-            <h2><i class="fas fa-user-circle"></i> 关于我</h2>
-            <p>我是李明，一名Java技术爱好者，专注于分享核心Java、Spring Boot和微服务的经验，助你成为更好的开发者。</p>
-        </section>
-        <section class="section articles">
-            <h2><i class="fas fa-book-open"></i> 最新文章</h2>
-            <div class="article">
-                <h3><a href="#">Java 22新特性解析</a></h3>
-                <div class="article-meta">发布于：2025-04-01 | 阅读：1280</div>
-                <p>深入了解Java 22的十大更新，提升开发效率。</p>
-                <div class="article-tags">
-                    <a href="#">Java 22</a>
-                    <a href="#">新特性</a>
-                </div>
-                <div class="article-share">
-                    <a href="#"><i class="fas fa-share-alt"></i></a>
-                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
-                </div>
-            </div>
-            <div class="article">
-                <h3><a href="#">Spring Boot 3.3实战</a></h3>
-                <div class="article-meta">发布于：2025-03-28 | 阅读：950</div>
-                <p>构建高性能微服务的实用指南。</p>
-                <div class="article-tags">
-                    <a href="#">Spring Boot</a>
-                    <a href="#">微服务</a>
-                </div>
-                <div class="article-share">
-                    <a href="#"><i class="fas fa-share-alt"></i></a>
-                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
-                </div>
-            </div>
-            <div class="article">
-                <h3><a href="#">Hibernate性能优化</a></h3>
-                <div class="article-meta">发布于：2025-03-25 | 阅读：780</div>
-                <p>从入门到精通的优化技巧。</p>
-                <div class="article-tags">
-                    <a href="#">Hibernate</a>
-                    <a href="#">性能</a>
-                </div>
-                <div class="article-share">
-                    <a href="#"><i class="fas fa-share-alt"></i></a>
-                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
-                </div>
-            </div>
-        </section>
-    </main>
-    <aside>
-        <section class="section hot-posts">
-            <h2><i class="fas fa-fire"></i> 热门推荐</h2>
-            <ul>
-                <li><a href="#">Java并发编程入门</a></li>
-                <li><a href="#">Spring Cloud微服务架构</a></li>
-                <li><a href="#">Maven高级用法</a></li>
-            </ul>
-        </section>
-        <section class="section tags">
-            <h2><i class="fas fa-tags"></i> 热门标签</h2>
-            <div>
-                <a href="#" class="article-tags">Java</a>
-                <a href="#" class="article-tags">Spring</a>
-                <a href="#" class="article-tags">微服务</a>
-                <a href="#" class="article-tags">Hibernate</a>
-                <a href="#" class="article-tags">Maven</a>
-            </div>
-        </section>
-    </aside>
-</div>
-<footer>
-    <div class="social">
-        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
-        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
-        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+    <div class="top-bar">
+        <h1>Java技术站</h1>
     </div>
-    <p>联系方式：40745554@qq.com | <a href="#">服务条款</a></p>
-    <p>© 2025 Java技术站 版权所有</p>
-</footer>
+    <nav>
+        <ul>
+            <li><a href="#"><i class="fas fa-code"></i> 核心Java</a>
+                <div class="dropdown">
+                    <a href="#">Java 22新特性</a>
+                    <a href="#">并发编程</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+                <div class="dropdown">
+                    <a href="#">Spring Boot</a>
+                    <a href="#">Spring Security</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a>
+                <div class="dropdown">
+                    <a href="#">Hibernate</a>
+                    <a href="#">JPA</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a>
+                <div class="dropdown">
+                    <a href="#">Maven</a>
+                    <a href="#">Gradle</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a>
+                <div class="dropdown">
+                    <a href="#">Quarkus</a>
+                    <a href="#">Spring Cloud</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a>
+                <div class="dropdown">
+                    <a href="#">JUnit</a>
+                    <a href="#">Mockito</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <div class="container">
+        <main>
+            <section class="section about">
+                <h2><i class="fas fa-user-circle"></i> 关于我</h2>
+                <p>我是李明，一名Java技术爱好者，专注于分享核心Java、Spring Boot和微服务的经验，助你成为更好的开发者。</p>
+            </section>
+            <section class="section articles">
+                <h2><i class="fas fa-book-open"></i> 最新文章</h2>
+                <div class="article">
+                    <h3><a href="#">Java 22新特性解析</a></h3>
+                    <div class="article-meta">发布于：2025-04-01 | 阅读：1280</div>
+                    <p>深入了解Java 22的十大更新，提升开发效率。</p>
+                    <div class="article-tags">
+                        <a href="#">Java 22</a>
+                        <a href="#">新特性</a>
+                    </div>
+                    <div class="article-share">
+                        <a href="#"><i class="fas fa-share-alt"></i></a>
+                        <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                    </div>
+                </div>
+                <div class="article">
+                    <h3><a href="#">Spring Boot 3.3实战</a></h3>
+                    <div class="article-meta">发布于：2025-03-28 | 阅读：950</div>
+                    <p>构建高性能微服务的实用指南。</p>
+                    <div class="article-tags">
+                        <a href="#">Spring Boot</a>
+                        <a href="#">微服务</a>
+                    </div>
+                    <div class="article-share">
+                        <a href="#"><i class="fas fa-share-alt"></i></a>
+                        <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                    </div>
+                </div>
+                <div class="article">
+                    <h3><a href="#">Hibernate性能优化</a></h3>
+                    <div class="article-meta">发布于：2025-03-25 | 阅读：780</div>
+                    <p>从入门到精通的优化技巧。</p>
+                    <div class="article-tags">
+                        <a href="#">Hibernate</a>
+                        <a href="#">性能</a>
+                    </div>
+                    <div class="article-share">
+                        <a href="#"><i class="fas fa-share-alt"></i></a>
+                        <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <aside>
+            <section class="section hot-posts">
+                <h2><i class="fas fa-fire"></i> 热门推荐</h2>
+                <ul>
+                    <li><a href="#">Java并发编程入门</a></li>
+                    <li><a href="#">Spring Cloud微服务架构</a></li>
+                    <li><a href="#">Maven高级用法</a></li>
+                </ul>
+            </section>
+            <section class="section tags">
+                <h2><i class="fas fa-tags"></i> 热门标签</h2>
+                <div>
+                    <a href="#" class="article-tags">Java</a>
+                    <a href="#" class="article-tags">Spring</a>
+                    <a href="#" class="article-tags">微服务</a>
+                    <a href="#" class="article-tags">Hibernate</a>
+                    <a href="#" class="article-tags">Maven</a>
+                </div>
+            </section>
+        </aside>
+    </div>
+    <footer>
+        <div class="social">
+            <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+            <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+            <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+        </div>
+        <p>联系方式： | <a href="#">服务条款</a></p>
+        <p>© 2025 Java技术站 版权所有</p>
+    </footer>
 </body>
 </html>
