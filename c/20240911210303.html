@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中台商品数据同步死锁问题分析与解决 - Java技术站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F9FC;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: white;
+        }
+        nav {
+            background-color: #FFFFFF;
+            padding: 15px 0;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+            box-sizing: border-box;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        nav li {
+            position: relative;
+            margin: 0 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #4A90E2;
+            font-weight: bold;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #F5A623;
+        }
+        nav i {
+            margin-right: 8px;
+        }
+        nav .dropdown {
+            display: none;
+            position: absolute;
+            background-color: #FFFFFF;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            top: 100%;
+            left: 0;
+            border-radius: 8px;
+        }
+        nav li:hover .dropdown {
+            display: block;
+        }
+        nav .dropdown a {
+            padding: 10px;
+            color: #4A90E2;
+            font-weight: normal;
+        }
+        nav .dropdown a:hover {
+            background-color: #E9F1FF;
+            color: #F5A623;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 120px auto 20px;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Ensure no horizontal overflow */
+        }
+        main {
+            flex: 2;
+            max-width: 100%;
+        }
+        aside {
+            width: 350px;
+            flex-shrink: 0;
+            max-width: 100%;
+        }
+        .section {
+            background-color: #FFFFFF;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        .section h1 {
+            color: #4A90E2;
+            font-size: 2.5em;
+            margin: 0 0 15px;
+            word-wrap: break-word;
+        }
+        .section h2 {
+            color: #4A90E2;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+            word-wrap: break-word;
+        }
+        .section h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+            word-wrap: break-word;
+        }
+        .article-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+        .article-content p {
+            margin: 15px 0;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+        }
+        .article-content pre {
+            background-color: #2D2D2D;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #ABB2BF;
+            border: 1px solid #404040;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .article-content pre code {
+            display: block;
+        }
+        /* Java 代码高亮 */
+        .article-content pre.java span.keyword {
+            color: #E5C07B; /* 橙黄色 - 关键词 */
+        }
+        .article-content pre.java span.string {
+            color: #98C379; /* 绿色 - 字符串 */
+        }
+        .article-content pre.java span.comment {
+            color: #5C6370; /* 灰色 - 注释 */
+        }
+        /* SQL 代码高亮 */
+        .article-content pre.sql span.keyword {
+            color: #C678DD; /* 紫色 - 关键词 */
+        }
+        .article-content pre.sql span.string {
+            color: #E06C75; /* 红色 - 字符串 */
+        }
+        /* Python 代码高亮 */
+        .article-content pre.python span.keyword {
+            color: #D19A66; /* 橙色 - 关键词 */
+        }
+        .article-content pre.python span.string {
+            color: #98C379; /* 绿色 - 字符串 */
+        }
+        .article-content pre.python span.comment {
+            color: #5C6370; /* 灰色 - 注释 */
+        }
+        .article-content code {
+            background-color: #333;
+            color: #E9ECEF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+        .article-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .article-content th, .article-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+        .article-content th {
+            background-color: #f2f2f2;
+        }
+        .article-tags {
+            margin: 20px 0;
+        }
+        .article-tags a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #E9F1FF;
+            color: #4A90E2;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        aside .section {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        aside ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        aside li {
+            margin: 10px 0;
+        }
+        aside a {
+            color: #4A90E2;
+            text-decoration: none;
+            transition: color 0.3s;
+            word-wrap: break-word;
+        }
+        aside a:hover {
+            color: #F5A623;
+        }
+        .toc h3, .tags h3, .hot-posts h3 {
+            color: #4A90E2;
+            font-size: 1.6em;
+            margin: 0 0 15px;
+        }
+        footer {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin-top: 20px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        footer .social a {
+            color: #F5A623;
+            margin: 0 10px;
+            font-size: 1.5em;
+            transition: color 0.3s;
+        }
+        footer .social a:hover {
+            color: #FF7F50;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Java技术站</h1>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
+            <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+                <div class="dropdown">
+                    <a href="#">Spring Boot</a>
+                    <a href="#">Spring Security</a>
+                </div>
+            </li>
+            <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
+            <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
+            <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
+            <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <main>
+            <section class="section article-content">
+                <h1>中台商品数据同步死锁问题分析与解决</h1>
+                <div class="article-meta">发布于：2025-04-07</div>
+
+                <h2 id="background">背景</h2>
+                <p>中台侧从POS厂商同步商品数据，POS会多次重复的推送商品数据。</p>
+                <ol>
+                    <li>中台侧没有增加<code>@Transaction</code>注解，也没有做好幂等校验，导致商品数据出现重复。</li>
+                    <li>中台对代码进行了优化，增加了事务注解，同时用商品ID做Redis锁，保证数据不会重复，但之后出现了MySQL死锁的问题。日志如下：</li>
+                </ol>
+                <pre class="java"><code>Deadlock found when trying to get lock; try restarting transaction</code></pre>
+
+                <h2 id="analysis">分析</h2>
+
+                <h3 id="analysis-logs">1. 分析业务日志</h3>
+                <h4 id="analysis-logs-a">a. 有多条数据几乎同时进入</h4>
+                <p><img src="https://cdn.nlark.com/yuque/0/2024/png/45384496/1724913934493-d303048a-84e9-4007-8067-cdd2e15f48c1.png" alt="多条数据同时进入"></p>
+                <h4 id="analysis-logs-b">b. 发现有明确的死锁异常，并根据异常定位到具体的代码</h4>
+                <p><img src="https://cdn.nlark.com/yuque/0/2024/png/45384496/1724913934440-f04f5a91-af50-4d6c-92b5-af0a9c91bcd6.png" alt="死锁异常"></p>
+
+                <h3 id="analysis-code">2. 分析业务代码</h3>
+                <p>此处业务逻辑如下：</p>
+                <ol>
+                    <li>保存或更新表A（<code>insert/update</code>），如果是update，where条件是<code>column1 = ' '</code>;</li>
+                    <li>删除表B，where条件是<code>column1 = ' '</code>;</li>
+                    <li>保存或更新表B</li>
+                    <li>更新表A，where条件是<code>column2 = ' '</code>;</li>
+                </ol>
+
+                <h3 id="analysis-mysql">3. 分析MySQL的死锁日志</h3>
+                <table>
+                    <tr><th>事务1</th><th>事务2</th><th>分析过程</th></tr>
+                    <tr><td>TRANSACTION 13305046, ACTIVE 2 sec fetching rows</td><td>TRANSACTION 13305045, ACTIVE 2 sec fetching rows</td><td></td></tr>
+                    <tr><td>update A where column1 = '3359';</td><td></td><td>事务1，锁住的是行锁</td></tr>
+                    <tr><td></td><td>update A where column1 = '2';</td><td></td></tr>
+                    <tr><td></td><td>DELETE FROM B WHERE column1 = '2';</td><td>事务1：trx id 13305046 lock_mode X locks rec but not gap waiting</td></tr>
+                    <tr><td>最后执行的一条SQL语句：</td><td></td><td>事务2：HOLDS THE LOCK(S):</td></tr>
+                    <tr><td></td><td>update A where column2 = '2';</td><td>事务2：WAITING FOR THIS LOCK TO BE GRANTED:</td></tr>
+                    <tr><td>超时，事务回滚</td><td></td><td></td></tr>
+                    <tr><td></td><td>事务1回滚后，事务2获取到锁，正常提交事务</td><td></td></tr>
+                </table>
+
+                <h2 id="reasons">原因</h2>
+                <ol>
+                    <li>长事务，执行时间太长</li>
+                    <li>频繁更新，而且where条件的字段未增加索引，导致锁表。应尽量避免锁表/间隙锁（RR隔离级别才有）</li>
+                </ol>
+
+                <h2 id="solutions">解决办法</h2>
+                <ol>
+                    <li>修改长事务，尽量使用小事务</li>
+                    <li>字段增加索引</li>
+                    <li>kill掉死锁的事务ID，重新执行程序</li>
+                </ol>
+                <ul>
+                    <li>应急方法：<code>SHOW FULL PROCESSLIST;</code> <code>KILL</code>掉出现问题的进程。<em>ps. 有的时候通过processlist是看不出哪里有锁等待的，当两个事务都在commit阶段是无法体现在processlist上</em></li>
+                    <li>根治方法：<code>SELECT * FROM information_schema.innodb_trx;</code> 查看有哪些事务占据了表资源。<em>ps. 通过这个办法就需要对InnoDB有一些了解才好处理</em></li>
+                </ul>
+                <ol start="4">
+                    <li>由原来的并行执行，改成串行执行，按照POS推送的顺序依次执行，可以避免这个问题，同时也可以实现处理失败后重试。（这个方案需要依赖定时任务，涉及到代码开发，后期采用这个方案）</li>
+                </ol>
+
+                <h2 id="references">扩展资料</h2>
+                <h3 id="reference-info">参考信息</h3>
+                <ol>
+                    <li>锁等待超时。是当前事务在等待其它事务释放锁资源造成的。可以找出锁资源竞争的表和语句，优化SQL，创建索引等。如果还是不行，可以适当减少并发线程数。</li>
+                    <li>事务在等待给某个表加锁时超时，估计是表正被另的进程锁住一直没有释放。可以 用 <code>SHOW INNODB STATUS\G;</code> 看一下锁的情况。</li>
+                    <li>搜索解决之道，在管理节点的[ndbd default]区加：<code>TransactionDeadLockDetectionTimeOut=10000</code>（设置为10秒）默认是1200（1.2秒）</li>
+                    <li>InnoDB会自动的检测死锁进行回滚，或者终止死锁的情况。</li>
+                </ol>
+                <p>InnoDB automatically detects transaction deadlocks and rolls back a transaction or transactions to break the deadlock. InnoDB tries to pick small transactions to roll back, where the size of a transaction is determined by the number of rows inserted, updated, or deleted.</p>
+
+                <h3 id="innodb-tables">Innodb_* 表的解释</h3>
+                <p><code>MySQL</code>的<code>InnoDB</code>存储引擎是支持事务的，事务开启后没有被主动<code>Commit</code>。导致该资源被长期占用，其他事务在抢占该资源时，因上一个事务的锁而导致抢占失败！因此出现 <code>Lock wait timeout exceeded</code></p>
+                <ul>
+                    <li><code>innodb_trx</code> ## 当前运行的所有事务</li>
+                    <li><code>innodb_locks</code> ## 当前出现的锁</li>
+                    <li><code>innodb_lock_waits</code> ## 锁等待的对应关系</li>
+                </ul>
+
+                <div class="article-tags">
+                    <a href="#">MySQL</a>
+                    <a href="#">死锁</a>
+                    <a href="#">事务</a>
+                    <a href="#">Redis锁</a>
+                </div>
+            </section>
+        </main>
+        <aside>
+            <section class="section toc">
+                <h3>文章目录</h3>
+                <ul>
+                    <li><a href="#background">背景</a></li>
+                    <li><a href="#analysis">分析</a></li>
+                    <li><a href="#analysis-logs">1. 分析业务日志</a></li>
+                    <li><a href="#analysis-code">2. 分析业务代码</a></li>
+                    <li><a href="#analysis-mysql">3. 分析MySQL的死锁日志</a></li>
+                    <li><a href="#reasons">原因</a></li>
+                    <li><a href="#solutions">解决办法</a></li>
+                    <li><a href="#references">扩展资料</a></li>
+                </ul>
+            </section>
+            <section class="section tags">
+                <h3>文章标签</h3>
+                <div>
+                    <a href="#" class="article-tags">MySQL</a>
+                    <a href="#" class="article-tags">死锁</a>
+                    <a href="#" class="article-tags">事务</a>
+                    <a href="#" class="article-tags">Redis锁</a>
+                </div>
+            </section>
+            <section class="section hot-posts">
+                <h3>热门文章</h3>
+                <ul>
+                    <li><a href="#">Spring Boot 3.3实战</a></li>
+                    <li><a href="#">Hibernate性能优化</a></li>
+                    <li><a href="#">Java并发编程入门</a></li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+    <footer>
+        <div class="social">
+            <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+            <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+            <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+        </lists>
+        <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+        <p>© 2025 Java技术站 版权所有</p>
+    </footer>
+</body>
+</html>
