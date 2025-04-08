@@ -14,6 +14,7 @@
             color: #333;
             line-height: 1.6;
         }
+
         /* 顶部 */
         .top-bar {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -27,11 +28,13 @@
             top: 0;
             z-index: 1000;
         }
+
         .top-bar h1 {
             margin: 0;
             font-size: 1.8em;
             color: white;
         }
+
         /* 导航 */
         nav {
             background-color: #FFFFFF;
@@ -42,6 +45,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 999;
         }
+
         nav ul {
             list-style-type: none;
             padding: 0;
@@ -49,10 +53,12 @@
             justify-content: center;
             margin: 0;
         }
+
         nav li {
             position: relative;
             margin: 0 20px;
         }
+
         nav a {
             text-decoration: none;
             color: #4A90E2;
@@ -62,12 +68,15 @@
             align-items: center;
             transition: color 0.3s;
         }
+
         nav a:hover {
             color: #F5A623;
         }
+
         nav i {
             margin-right: 8px;
         }
+
         nav .dropdown {
             display: none;
             position: absolute;
@@ -78,18 +87,22 @@
             left: 0;
             border-radius: 8px;
         }
+
         nav li:hover .dropdown {
             display: block;
         }
+
         nav .dropdown a {
             padding: 10px;
             color: #4A90E2;
             font-weight: normal;
         }
+
         nav .dropdown a:hover {
             background-color: #E9F1FF;
             color: #F5A623;
         }
+
         /* 内容区 */
         .container {
             max-width: 1500px; /* 宽度从1300px增至1500px */
@@ -98,13 +111,16 @@
             gap: 30px;
             padding: 0 20px;
         }
+
         main {
             flex: 2; /* main随容器宽度自适应扩展 */
         }
+
         aside {
             width: 350px; /* aside固定宽度350px */
             flex-shrink: 0; /* 防止宽度压缩 */
         }
+
         .section {
             background-color: #FFFFFF;
             padding: 25px;
@@ -113,6 +129,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             margin-top: 40px;
         }
+
         .section h2 {
             color: #4A90E2;
             font-size: 2em;
@@ -120,9 +137,11 @@
             display: flex;
             align-items: center;
         }
+
         .section h2 i {
             margin-right: 10px;
         }
+
         /* 文章 */
         .article {
             padding: 15px;
@@ -131,26 +150,32 @@
             margin-bottom: 15px;
             transition: all 0.3s;
         }
+
         .article:hover {
             background-color: #E9F1FF;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
         .article h3 {
             margin: 0 0 10px;
             font-size: 1.6em;
         }
+
         .article a {
             color: #4A90E2;
             text-decoration: none;
         }
+
         .article a:hover {
             color: #F5A623;
         }
+
         .article-meta {
             font-size: 0.9em;
             color: #666;
             margin: 5px 0;
         }
+
         .article-tags a {
             display: inline-block;
             padding: 5px 10px;
@@ -161,33 +186,41 @@
             text-decoration: none;
             font-size: 0.85em;
         }
+
         .article-share a {
             color: #7B68EE;
             margin-right: 10px;
             transition: color 0.3s;
         }
+
         .article-share a:hover {
             color: #F5A623;
         }
+
         /* 侧边栏 */
         aside .section {
             padding: 20px;
         }
+
         aside ul {
             list-style-type: none;
             padding: 0;
         }
+
         aside li {
             margin: 10px 0;
         }
+
         aside a {
             color: #4A90E2;
             text-decoration: none;
             transition: color 0.3s;
         }
+
         aside a:hover {
             color: #F5A623;
         }
+
         /* 页脚 */
         footer {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -197,12 +230,14 @@
             border-radius: 15px 15px 0 0;
             margin-top: 20px;
         }
+
         footer .social a {
             color: #F5A623;
             margin: 0 10px;
             font-size: 1.5em;
             transition: color 0.3s;
         }
+
         footer .social a:hover {
             color: #FF7F50;
         }
@@ -272,9 +307,9 @@
                     <a href="#"><i class="fas fa-thumbs-up"></i></a>
                 </div>
             </div>
-            
 
-<div class="article">
+
+            <div class="article">
                 <h3><a href="c/20250217101146.html">开源版Sentinel改造逻辑和主要代码</a></h3>
                 <div class="article-meta">发布于：2025-02-17</div>
                 <p>改造方向:配置的规则数据持久化、服务注册发现、高可用改造。</p>
@@ -291,7 +326,8 @@
             <div class="article">
                 <h3><a href="c/20250107212446.html">sentinel限流工具接入文档</a></h3>
                 <div class="article-meta">发布于：2025-01-07</div>
-                <p>Sentinel 是阿里巴巴开源的分布式服务保护组件，主要用于微服务架构中的流量控制、服务熔断、系统保护等功能。</p>
+                <p>Sentinel
+                    是阿里巴巴开源的分布式服务保护组件，主要用于微服务架构中的流量控制、服务熔断、系统保护等功能。</p>
                 <div class="article-tags">
                     <a href="sentinel-index.html">Sentinel</a>
                     <a href="sentinel-index.html">限流</a>
@@ -301,7 +337,7 @@
                     <a href="#"><i class="fas fa-thumbs-up"></i></a>
                 </div>
             </div>
-<div class="article">
+            <div class="article">
                 <h3><a href="c/20241107132139.html">SpringBoot与Apollo集成中Dubbo配置加载失败问题</a></h3>
                 <div class="article-meta">发布于：2024-11-07</div>
                 <p>apollo中已经配置好dubbo的相关信息，部署到服务器时仍然报错</p>
