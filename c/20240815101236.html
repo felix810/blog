@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>Java 22 主要特性介绍 - Java技术站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F9FC;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: white;
+        }
+        nav {
+            background-color: #FFFFFF;
+            padding: 15px 0;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+            box-sizing: border-box;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        nav li {
+            position: relative;
+            margin: 0 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #4A90E2;
+            font-weight: bold;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #F5A623;
+        }
+        nav i {
+            margin-right: 8px;
+        }
+        nav .dropdown {
+            display: none;
+            position: absolute;
+            background-color: #FFFFFF;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            top: 100%;
+            left: 0;
+            border-radius: 8px;
+        }
+        nav li:hover .dropdown {
+            display: block;
+        }
+        nav .dropdown a {
+            padding: 10px;
+            color: #4A90E2;
+            font-weight: normal;
+        }
+        nav .dropdown a:hover {
+            background-color: #E9F1FF;
+            color: #F5A623;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 120px auto 20px;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        main {
+            flex: 2;
+            max-width: 100%;
+        }
+        aside {
+            width: 350px;
+            flex-shrink: 0;
+            max-width: 100%;
+        }
+        .section {
+            background-color: #FFFFFF;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+            box-sizing: border-box;
+        }
+        .section h1 {
+            color: #4A90E2;
+            font-size: 2.5em;
+            margin: 0 0 15px;
+            word-wrap: break-word;
+        }
+        .section h2 {
+            color: #4A90E2;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+            word-wrap: break-word;
+        }
+        .section h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+            word-wrap: break-word;
+        }
+        .article-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+        .article-content p {
+            margin: 15px 0;
+            word-wrap: break-word;
+        }
+        .article-content pre {
+            background-color: #2D2D2D;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #ABB2BF;
+            border: 1px solid #404040;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .article-content pre code {
+            display: block;
+        }
+        .article-content pre.java span.keyword {
+            color: #E5C07B;
+        }
+        .article-content pre.java span.string {
+            color: #98C379;
+        }
+        .article-content pre.java span.comment {
+            color: #5C6370;
+        }
+        .article-content code {
+            background-color: #333;
+            color: #E9ECEF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            word-wrap: break-word;
+        }
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+        }
+        .article-tags {
+            margin: 20px 0;
+        }
+        .article-tags a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #E9F1FF;
+            color: #4A90E2;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        aside .section {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        aside ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        aside li {
+            margin: 10px 0;
+        }
+        aside .toc ul ul {
+            margin-left: 20px;
+        }
+        aside .toc ul ul ul {
+            margin-left: 40px;
+        }
+        aside a {
+            color: #4A90E2;
+            text-decoration: none;
+            transition: color 0.3s;
+            word-wrap: break-word;
+        }
+        aside a:hover {
+            color: #F5A623;
+        }
+        .toc h3, .tags h3, .hot-posts h3 {
+            color: #4A90E2;
+            font-size: 1.6em;
+            margin: 0 0 15px;
+        }
+        footer {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin-top: 20px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        footer .social a {
+            color: #F5A623;
+            margin: 0 10px;
+            font-size: 1.5em;
+            transition: color 0.3s;
+        }
+        footer .social a:hover {
+            color: #FF7F50;
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <h1>Java技术站</h1>
+</div>
+<nav>
+    <ul>
+        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
+        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+            <div class="dropdown">
+                <a href="#">Spring Boot</a>
+                <a href="#">Spring Security</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
+        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
+        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
+        <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <main>
+        <section class="section article-content">
+            <h1>Java 22 主要特性介绍</h1>
+            <div class="article-meta">发布于：2024-08-15</div>
+
+            <p>Java 22 是 Oracle 于 2024 年 3 月 19 日发布的最新版本，作为 Java 平台的又一次重要更新，它延续了 Java 每六个月发布一次的节奏，带来了多项新特性和改进。这些特性不仅提升了开发者的生产力，还优化了代码的可读性、性能以及与外部系统的交互能力。本文将深入探讨 Java 22 的核心特性，结合详细的理论知识、实际应用场景和代码示例，帮助开发者全面理解并快速上手这些新功能。</p>
+
+            <h2 id="section1">Java 22 的核心特性</h2>
+
+            <h3 id="section1-1">1. 结构化并发 (Structured Concurrency, JEP 453)</h3>
+            <p>结构化并发是 Java 22 中一项重要的并发编程改进，它通过引入 <code>StructuredTaskScope</code> 类，旨在解决传统多线程编程中任务管理混乱、线程泄漏和错误传播难以追踪的问题。结构化并发将并发任务组织成一个层次化的结构，确保所有子任务在主任务结束前完成或被妥善处理，从而提升代码的可维护性和可靠性。它特别适合需要协调多个并行任务的场景，例如从多个服务获取数据并汇总结果。</p>
+            <p><strong>应用场景</strong>：</p>
+            <ul>
+                <li>微服务架构中并行调用多个下游服务。</li>
+                <li>批量数据处理时并行执行子任务。</li>
+                <li>需要确保所有子任务完成后才继续执行的业务逻辑。</li>
+            </ul>
+            <p><strong>简明说明</strong>：将并发任务视为一个整体，失败或成功统一处理，避免线程泄漏。</p>
+            <pre class="java"><code><span class="keyword">import</span> java.util.concurrent.StructuredTaskScope;
+<span class="keyword">import</span> java.util.concurrent.Future;
+<span class="keyword">import</span> java.util.concurrent.ExecutionException;
+
+<span class="keyword">public class</span> StructuredConcurrencyDemo {
+    <span class="keyword">public static void</span> main(String[] args) <span class="keyword">throws</span> Exception {
+        <span class="keyword">try</span> (StructuredTaskScope.ShutdownOnFailure scope = <span class="keyword">new</span> StructuredTaskScope.ShutdownOnFailure()) {
+            Future<String> fetchUser = scope.fork(() -> fetchData(<span class="string">"User Service"</span>, 1000));
+            Future<String> fetchOrder = scope.fork(() -> fetchData(<span class="string">"Order Service"</span>, 1500));
+
+            scope.join().throwIfFailed(e -> <span class="keyword">new</span> RuntimeException(<span class="string">"Service call failed"</span>, e)); <span class="comment">// 等待并检查失败</span>
+
+            String result = fetchUser.resultNow() + <span class="string">", "</span> + fetchOrder.resultNow();
+            System.out.println(<span class="string">"Combined result: "</span> + result);
+        }
+    }
+
+    <span class="keyword">private static</span> String fetchData(String service, <span class="keyword">long</span> delay) <span class="keyword">throws</span> InterruptedException {
+        Thread.sleep(delay); <span class="comment">// 模拟服务调用延迟</span>
+        <span class="keyword">return</span> service + <span class="string">" responded"</span>;
+    }
+}
+</code></pre>
+            <p><strong>代码解析</strong>：上述示例模拟了从两个服务并行获取数据的情景。使用 <code>ShutdownOnFailure</code> 策略，若任一任务失败，所有任务将被终止，结果通过 <code>resultNow()</code> 获取，确保逻辑清晰且资源安全释放。</p>
+
+            <h3 id="section1-2">2. 未命名变量与模式 (Unnamed Variables & Patterns, JEP 456)</h3>
+            <p>未命名变量和模式是 Java 22 中一项语法改进，通过引入 <code>_</code> 符号表示未使用的变量或模式匹配中的占位符，减少冗余代码，提升代码的可读性和简洁性。这一特性适用于多种场景，例如 <code>switch</code> 表达式、<code>try-catch</code> 块以及模式匹配中，允许开发者忽略无需处理的变量。此特性是对 Java 模式匹配功能的进一步完善，延续了 Java 17 引入的 <code>instanceof</code> 模式匹配的演进。</p>
+            <p><strong>应用场景</strong>：</p>
+            <ul>
+                <li>在 <code>switch</code> 中处理部分类型时忽略其他类型。</li>
+                <li>捕获异常但无需使用异常对象时简化代码。</li>
+                <li>模式匹配中仅关注部分变量时减少代码噪声。</li>
+            </ul>
+            <p><strong>简明说明</strong>：用 <code>_</code> 替代无用变量，简化代码逻辑。</p>
+            <pre class="java"><code><span class="keyword">public class</span> UnnamedVariableDemo {
+    <span class="keyword">public static void</span> main(String[] args) {
+        Object obj = <span class="string">"Hello, Java 22"</span>;
+
+        <span class="comment">// 使用未命名变量简化 switch</span>
+        <span class="keyword">switch</span> (obj) {
+            <span class="keyword">case</span> String s -> System.out.println(<span class="string">"String: "</span> + s);
+            <span class="keyword">case</span> Integer _ -> System.out.println(<span class="string">"An integer, ignored"</span>);
+            <span class="keyword">case</span> _ -> System.out.println(<span class="string">"Unknown type"</span>);
+        }
+
+        <span class="comment">// 在 try-catch 中忽略异常</span>
+        <span class="keyword">try</span> {
+            Integer.parseInt(<span class="string">"not-a-number"</span>);
+        } <span class="keyword">catch</span> (NumberFormatException _) {
+            System.out.println(<span class="string">"Invalid number format, exception ignored"</span>);
+        }
+    }
+}
+</code></pre>
+            <p><strong>代码解析</strong>：在 <code>switch</code> 中，<code>Integer _</code> 表示匹配但不使用变量；在 <code>catch</code> 中，<code>NumberFormatException _</code> 避免了声明未使用的异常对象，代码更简洁直观。</p>
+
+            <h3 id="section1-3">3. 外部函数与内存 API (Foreign Function & Memory API, JEP 454)</h3>
+            <p>外部函数与内存 API 是 Java 22 中一项突破性的特性，旨在替代传统的 JNI（Java Native Interface），提供更安全、高效的方式调用本地代码（如 C/C++ 函数）并操作堆外内存。它通过 <code>Linker</code> 接口实现本地函数调用，通过 <code>MemorySegment</code> 和 <code>Arena</code> 管理堆外内存。这一特性极大扩展了 Java 的能力，使其更适合需要与操作系统或硬件直接交互的高性能应用。</p>
+            <p><strong>应用场景</strong>：</p>
+            <ul>
+                <li>调用 C 库中的数学计算函数提升性能。</li>
+                <li>操作大型堆外内存数据，避免 GC 压力。</li>
+                <li>与本地驱动程序或遗留系统集成。</li>
+            </ul>
+            <p><strong>简明说明</strong>：打破 Java 与本地代码的壁垒，提升性能和互操作性。</p>
+            <pre class="java"><code><span class="keyword">import</span> java.lang.foreign.*;
+<span class="keyword">import</span> java.lang.invoke.MethodHandle;
+
+<span class="keyword">public class</span> ForeignFunctionDemo {
+    <span class="keyword">public static void</span> main(String[] args) <span class="keyword">throws</span> Throwable {
+        Linker linker = Linker.nativeLinker();
+        SymbolLookup stdlib = linker.defaultLookup();
+
+        <span class="comment">// 查找 C 标准库中的 strlen 函数</span>
+        MethodHandle strlen = linker.downcallHandle(
+            stdlib.find(<span class="string">"strlen"</span>).orElseThrow(),
+            FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.ADDRESS)
+        );
+
+        <span class="comment">// 分配堆外内存并写入字符串</span>
+        <span class="keyword">try</span> (Arena arena = Arena.ofConfined()) {
+            MemorySegment str = arena.allocateUtf8String(<span class="string">"Hello, Java 22"</span>);
+            <span class="keyword">long</span> length = (<span class="keyword">long</span>) strlen.invoke(str);
+            System.out.println(<span class="string">"String length: "</span> + length); <span class="comment">// 输出: String length: 14</span>
+        }
+    }
+}
+</code></pre>
+            <p><strong>代码解析</strong>：示例调用了 C 标准库中的 <code>strlen</code> 函数计算字符串长度。使用 <code>Arena</code> 管理内存生命周期，避免手动释放内存的复杂性，<code>Linker</code> 提供类型安全的函数调用接口。</p>
+
+            <h3 id="section1-4">4. 预览特性：字符串模板 (String Templates, JEP 459)</h3>
+            <p>字符串模板是 Java 22 中一项仍在预览阶段的特性，通过 <code>STR</code> 模板处理器简化字符串插值操作，使开发者能够更直观地嵌入表达式到字符串中，替代传统的 <code>String.format</code> 或 <code>+</code> 拼接方式。字符串模板支持动态计算、格式化以及多行字符串，极大提升了代码的可读性和编写效率。它还可以通过自定义模板处理器扩展功能，例如安全性检查或日志格式化。</p>
+            <p><strong>应用场景</strong>：</p>
+            <ul>
+                <li>生成动态 SQL 查询语句。</li>
+                <li>构造复杂的日志消息。</li>
+                <li>创建用户友好的提示信息。</li>
+            </ul>
+            <p><strong>简明说明</strong>：让字符串处理更简洁，减少拼接麻烦。</p>
+            <pre class="java"><code><span class="keyword">public class</span> StringTemplateDemo {
+    <span class="keyword">public static void</span> main(String[] args) {
+        String name = <span class="string">"Java 22"</span>;
+        <span class="keyword">int</span> version = 22;
+        <span class="keyword">double</span> pi = 3.14159;
+
+        <span class="comment">// 基本插值</span>
+        String greeting = STR.<span class="string">"Welcome to \{name}, version \{version}!"</span>;
+        System.out.println(greeting); <span class="comment">// 输出: Welcome to Java 22, version 22!</span>
+
+        <span class="comment">// 带格式化</span>
+        String mathInfo = STR.<span class="string">"Pi value: \{String.format("%.2f", pi)}"</span>;
+        System.out.println(mathInfo); <span class="comment">// 输出: Pi value: 3.14</span>
+
+        <span class="comment">// 多行字符串</span>
+        String multiLine = STR.<span class="string">"""
+            User: \{name}
+            Version: \{version}
+            """</span>;
+        System.out.println(multiLine);
+    }
+}
+</code></pre>
+            <p><strong>代码解析</strong>：示例展示了基本插值、格式化以及多行字符串的使用。运行时需启用 <code>--enable-preview</code>，<code>STR</code> 处理器自动处理表达式计算，代码简洁且直观。</p>
+
+            <h2 id="section2">使用 Java 22 的注意事项</h2>
+            <p>在使用 Java 22 的新特性时，开发者需要注意以下几点，以确保顺利集成和运行：</p>
+            <ol>
+                <li><strong>JDK 配置</strong>：需下载并安装 JDK 22。对于预览特性（如字符串模板），编译和运行时需添加 <code>--enable-preview</code> 参数，例如 <code>java --enable-preview Main.java</code>。</li>
+                <li><strong>兼容性检查</strong>：外部函数与内存 API 依赖本地库（如 C 的标准库），需确保目标平台支持相关函数调用，并处理可能的平台差异。</li>
+                <li><strong>性能权衡</strong>：结构化并发虽然简化了任务管理，但在高并发场景下可能引入额外的开销，建议根据实际需求选择合适的 <code>StructuredTaskScope</code> 策略（如 <code>ShutdownOnFailure</code> 或 <code>ShutdownOnSuccess</code>）。</li>
+                <li><strong>学习成本</strong>：新特性如未命名变量和字符串模板虽然简单，但外部函数与内存 API 涉及堆外内存管理，可能需要开发者熟悉相关概念（如内存段和作用域）。</li>
+                <li><strong>生态适配</strong>：部分框架和工具可能尚未完全支持 Java 22 的新特性，升级前需验证兼容性。</li>
+            </ol>
+
+            <div class="article-tags">
+                <a href="#">Java 22</a>
+                <a href="#">结构化并发</a>
+                <a href="#">未命名变量</a>
+                <a href="#">外部函数</a>
+                <a href="#">字符串模板</a>
+            </div>
+        </section>
+    </main>
+    <aside>
+        <section class="section toc">
+            <h3>文章目录</h3>
+            <ul>
+                <li><a href="#section1">Java 22 的核心特性</a>
+                    <ul>
+                        <li><a href="#section1-1">1. 结构化并发</a></li>
+                        <li><a href="#section1-2">2. 未命名变量与模式</a></li>
+                        <li><a href="#section1-3">3. 外部函数与内存 API</a></li>
+                        <li><a href="#section1-4">4. 预览特性：字符串模板</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section2">使用 Java 22 的注意事项</a></li>
+            </ul>
+        </section>
+        <section class="section tags">
+            <h3>文章标签</h3>
+            <div>
+                <a href="#" class="article-tags">Java 22</a>
+                <a href="#" class="article-tags">结构化并发</a>
+                <a href="#" class="article-tags">未命名变量</a>
+                <a href="#" class="article-tags">外部函数</a>
+                <a href="#" class="article-tags">字符串模板</a>
+            </div>
+        </section>
+        <section class="section hot-posts">
+            <h3>热门文章</h3>
+            <ul>
+                <li><a href="#">Spring Boot 3.3实战</a></li>
+                <li><a href="#">Hibernate性能优化</a></li>
+                <li><a href="#">Java并发编程入门</a></li>
+            </ul>
+        </section>
+    </aside>
+</div>
+<footer>
+    <div class="social">
+        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+    </div>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+    <p>© 2025 Java技术站 版权所有</p>
+</footer>
+</body>
+</html>
