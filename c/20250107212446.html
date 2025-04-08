@@ -161,32 +161,29 @@
         .article-content pre code {
             display: block;
         }
-        /* Java 代码高亮 */
         .article-content pre.java span.keyword {
-            color: #E5C07B; /* 橙黄色 - 关键词 */
+            color: #E5C07B;
         }
         .article-content pre.java span.string {
-            color: #98C379; /* 绿色 - 字符串 */
+            color: #98C379;
         }
         .article-content pre.java span.comment {
-            color: #5C6370; /* 灰色 - 注释 */
+            color: #5C6370;
         }
-        /* SQL 代码高亮 */
         .article-content pre.sql span.keyword {
-            color: #C678DD; /* 紫色 - 关键词 */
+            color: #C678DD;
         }
         .article-content pre.sql span.string {
-            color: #E06C75; /* 红色 - 字符串 */
+            color: #E06C75;
         }
-        /* Python 代码高亮 */
         .article-content pre.python span.keyword {
-            color: #D19A66; /* 橙色 - 关键词 */
+            color: #D19A66;
         }
         .article-content pre.python span.string {
-            color: #98C379; /* 绿色 - 字符串 */
+            color: #98C379;
         }
         .article-content pre.python span.comment {
-            color: #5C6370; /* 灰色 - 注释 */
+            color: #5C6370;
         }
         .article-content code {
             background-color: #333;
@@ -225,6 +222,12 @@
         }
         aside li {
             margin: 10px 0;
+        }
+        aside .toc ul ul {
+            margin-left: 20px;
+        }
+        aside .toc ul ul ul {
+            margin-left: 40px;
         }
         aside a {
             color: #4A90E2;
@@ -553,16 +556,47 @@
                 <ul>
                     <li><a href="#section1">Sentinel 的核心功能</a></li>
                     <li><a href="#section2">AWS上使用的Sentinel开源版本</a></li>
-                    <li><a href="#section3">接入Sentinel步骤</a></li>
-                    <li><a href="#section3-1">引入支持该版本的jar包</a></li>
-                    <li><a href="#section3-2">配置文件</a></li>
-                    <li><a href="#section3-3">异常处理方式</a></li>
-                    <li><a href="#section3-4">Sentinel 注册成功的页面</a></li>
-                    <li><a href="#section4">Sentinel规则配置</a></li>
-                    <li><a href="#section4-1">流控配置</a></li>
-                    <li><a href="#section4-2">熔断配置</a></li>
-                    <li><a href="#section4-3">授权规则</a></li>
-                    <li><a href="#section4-4">热点规则</a></li>
+                    <li><a href="#section3">接入Sentinel步骤</a>
+                        <ul>
+                            <li><a href="#section3-1">引入支持该版本的jar包</a></li>
+                            <li><a href="#section3-2">配置文件</a></li>
+                            <li><a href="#section3-3">异常处理方式</a>
+                                <ul>
+                                    <li><a href="#section3-3">第一种：全局异常处理</a></li>
+                                    <li><a href="#section3-3">第二种：对某个方法单独做处理，使用 @SentinelResource 注解</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#section3-4">Sentinel 注册成功的页面</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#section4">Sentinel规则配置</a>
+                        <ul>
+                            <li><a href="#section4-1">流控配置</a>
+                                <ul>
+                                    <li><a href="#section4-1">应用场景</a></li>
+                                    <li><a href="#section4-1">具体规则</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#section4-2">熔断配置</a>
+                                <ul>
+                                    <li><a href="#section4-2">应用场景</a></li>
+                                    <li><a href="#section4-2">具体规则</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#section4-3">授权规则</a>
+                                <ul>
+                                    <li><a href="#section4-3">应用场景</a></li>
+                                    <li><a href="#section4-3">具体规则</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="#section4-4">热点规则</a>
+                                <ul>
+                                    <li><a href="#section4-4">应用场景</a></li>
+                                    <li><a href="#section4-4">具体规则</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                     <li><a href="#section5">使用Sentinel需要注意事项</a></li>
                 </ul>
             </section>
@@ -591,7 +625,7 @@
             <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
             <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
         </div>
-        <p>联系方式：<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="224e4b4f4b4c4506224f434b4e0c414d4f">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+        <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
         <p>© 2025 Java技术站 版权所有</p>
     </footer>
 </body>
