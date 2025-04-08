@@ -201,6 +201,12 @@
         aside li {
             margin: 10px 0;
         }
+        aside .toc ul ul {
+            margin-left: 20px;
+        }
+        aside .toc ul ul ul {
+            margin-left: 40px;
+        }
         aside a {
             color: #4A90E2;
             text-decoration: none;
@@ -347,12 +353,20 @@ at com.alibaba.spring.beans.factory.annotation.AbstractAnnotationBeanPostProcess
             <h3>文章目录</h3>
             <ul>
                 <li><a href="#section1">一、描述</a></li>
-                <li><a href="#section2">二、解决思路</a></li>
-                <li><a href="#section2-1">1. 分析原因</a></li>
-                <li><a href="#section2-2">2. 本地启动</a></li>
-                <li><a href="#section2-3">3. 验证apollo</a></li>
-                <li><a href="#section2-4">4. 再次查看日志</a></li>
-                <li><a href="#section2-5">5. 解决问题</a></li>
+                <li><a href="#section2">二、解决思路</a>
+                    <ul>
+                        <li><a href="#section2-1">1. 分析原因</a></li>
+                        <li><a href="#section2-2">2. 本地启动</a></li>
+                        <li><a href="#section2-3">3. 验证apollo</a></li>
+                        <li><a href="#section2-4">4. 再次查看日志</a>
+                            <ul>
+                                <li><a href="#section2-4">OverrideDubboConfigApplicationListener 类的作用</a></li>
+                                <li><a href="#section2-4">dubbo配置加载失败的原因</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#section2-5">5. 解决问题</a></li>
+                    </ul>
+                </li>
             </ul>
         </section>
         <section class="section tags">
@@ -380,7 +394,7 @@ at com.alibaba.spring.beans.factory.annotation.AbstractAnnotationBeanPostProcess
         <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
         <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <p>联系方式：<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d2fefbfffbfcf5d2f7fff3fbfebcf1fdff">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
     <p>© 2025 Java技术站 版权所有</p>
 </footer>
 </body>
