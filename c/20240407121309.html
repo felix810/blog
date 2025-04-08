@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -161,32 +160,29 @@
         .article-content pre code {
             display: block;
         }
-        /* Java 代码高亮 */
         .article-content pre.java span.keyword {
-            color: #E5C07B; /* 橙黄色 - 关键词 */
+            color: #E5C07B;
         }
         .article-content pre.java span.string {
-            color: #98C379; /* 绿色 - 字符串 */
+            color: #98C379;
         }
         .article-content pre.java span.comment {
-            color: #5C6370; /* 灰色 - 注释 */
+            color: #5C6370;
         }
-        /* SQL 代码高亮 */
         .article-content pre.sql span.keyword {
-            color: #C678DD; /* 紫色 - 关键词 */
+            color: #C678DD;
         }
         .article-content pre.sql span.string {
-            color: #E06C75; /* 红色 - 字符串 */
+            color: #E06C75;
         }
-        /* Python 代码高亮 */
         .article-content pre.python span.keyword {
-            color: #D19A66; /* 橙色 - 关键词 */
+            color: #D19A66;
         }
         .article-content pre.python span.string {
-            color: #98C379; /* 绿色 - 字符串 */
+            color: #98C379;
         }
         .article-content pre.python span.comment {
-            color: #5C6370; /* 灰色 - 注释 */
+            color: #5C6370;
         }
         .article-content code {
             background-color: #333;
@@ -229,6 +225,13 @@
         aside a:hover {
             color: #F5A623;
         }
+        /* 优化目录的缩进样式 */
+        .toc ul {
+            padding-left: 0;
+        }
+        .toc ul ul {
+            padding-left: 20px;
+        }
         .toc h3, .tags h3, .hot-posts h3 {
             color: #4A90E2;
             font-size: 1.6em;
@@ -256,37 +259,37 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <h1>Java技术站</h1>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
-            <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
-                <div class="dropdown">
-                    <a href="#">Spring Boot</a>
-                    <a href="#">Spring Security</a>
-                </div>
-            </li>
-            <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
-            <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
-            <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
-            <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a></li>
-        </ul>
-    </nav>
-    <div class="container">
-        <main>
-            <section class="section article-content">
-                <h1>SpringBoot全局异常捕获失效</h1>
-                <div class="article-meta">发布于：2024-04-06</div>
-                
-                <h2 id="section1">常见的捕获方式：</h2>
-                
-                <h2 id="section2">一、使用ControllerAdvice注解</h2>
-                <h3 id="section2-1">1. 使用@ControllerAdvice(basePackages = { "com.chagee.airhub.config.admin.web"})注解</h3>
-                <h3 id="section2-2">2. 方法中使用 @ExceptionHandler注解，指定具体的异常</h3>
-                <pre class="java"><code><span class="keyword">@Slf4j</span>
-<span class="keyword">@ControllerAdvice</span>(basePackages = { <span class="string">"com.chagee.airhub.config.admin.web"</span>})
+<div class="top-bar">
+    <h1>Java技术站</h1>
+</div>
+<nav>
+    <ul>
+        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
+        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+            <div class="dropdown">
+                <a href="#">Spring Boot</a>
+                <a href="#">Spring Security</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
+        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
+        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
+        <li><a href="#"><i class="fas fa-bug"></i> 测试与调试</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <main>
+        <section class="section article-content">
+            <h1>SpringBoot全局异常捕获失效</h1>
+            <div class="article-meta">发布于：2024-04-06</div>
+
+            <h2 id="section1">常见的捕获方式：</h2>
+
+            <h2 id="section2">一、使用ControllerAdvice注解</h2>
+            <h3 id="section2-1">1. 使用@ControllerAdvice(basePackages = { "com.c.airhub.config.admin.web"})注解</h3>
+            <h3 id="section2-2">2. 方法中使用 @ExceptionHandler注解，指定具体的异常</h3>
+            <pre class="java"><code><span class="keyword">@Slf4j</span>
+<span class="keyword">@ControllerAdvice</span>(basePackages = { <span class="string">"com.c.airhub.config.admin.web"</span>})
 <span class="keyword">public class</span> ExceptionHandlerAdvice {
 
     <span class="comment">/**
@@ -309,7 +312,7 @@
         ex.printStackTrace();
         <span class="keyword">return</span> BaseResponse.fail(BizErrorCode.SYSTEM_ERROR);
     }
-    
+
     <span class="keyword">@ExceptionHandler</span>(MethodArgumentNotValidException.class)
     <span class="keyword">@ResponseBody</span>
     <span class="keyword">@Order</span>(0)
@@ -327,18 +330,18 @@
     }
 }
                 </code></pre>
-                <p>用这个方式已经实现了大多数的异常捕获，此时因为需求关系，需要对文件上传时，文件的大小进行限制，超出大小限制，需提示异常信息。</p>
-                <p>springboot的上传文件大小超出限制，会抛出异常：<code>MultipartException</code>，但是经过上面的方式，根本无法捕获成功。因此有了第二种方式：</p>
+            <p>用这个方式已经实现了大多数的异常捕获，此时因为需求关系，需要对文件上传时，文件的大小进行限制，超出大小限制，需提示异常信息。</p>
+            <p>springboot的上传文件大小超出限制，会抛出异常：<code>MultipartException</code>，但是经过上面的方式，根本无法捕获成功。因此有了第二种方式：</p>
 
-                <h2 id="section3">二、使用@RestControllerAdvice注解</h2>
-                <p>经过测试，单纯使用这个注解，并不能解决异常不能被捕获的问题。</p>
-                <p>因此考虑不是注解的原因，可能存在其他问题：</p>
-                <ol>
-                    <li>考虑不是MultipartException这个异常，经过多次的验证，更换了其他异常，都无法捕获住。</li>
-                    <li>springboot版本的原因，导致无法正常捕获。</li>
-                </ol>
-                <p>而我项目中用的springboot版本是 2.7.8 ，这个版本的springboot已经实现了部分异常的处理。所以验证了如下方法：</p>
-                <pre class="java"><code><span class="keyword">@RestControllerAdvice</span>
+            <h2 id="section3">二、使用@RestControllerAdvice注解</h2>
+            <p>经过测试，单纯使用这个注解，并不能解决异常不能被捕获的问题。</p>
+            <p>因此考虑不是注解的原因，可能存在其他问题：</p>
+            <ol>
+                <li>考虑不是MultipartException这个异常，经过多次的验证，更换了其他异常，都无法捕获住。</li>
+                <li>springboot版本的原因，导致无法正常捕获。</li>
+            </ol>
+            <p>而我项目中用的springboot版本是 2.7.8 ，这个版本的springboot已经实现了部分异常的处理。所以验证了如下方法：</p>
+            <pre class="java"><code><span class="keyword">@RestControllerAdvice</span>
 <span class="keyword">@Slf4j</span>
 <span class="keyword">public class</span> GlobalExceptionHandler <span class="keyword">extends</span> ResponseEntityExceptionHandler {
 
@@ -352,13 +355,13 @@
     }
 }
                 </code></pre>
-                <p>验证成功！！！</p>
+            <p>验证成功！！！</p>
 
-                <h2 id="section4">新的问题</h2>
-                <p>这个版本的异常捕获，需要继承：<code>ResponseEntityExceptionHandler</code>类。但此时出现了第二个问题，<strong>参数校验的异常MethodArgumentNotValidException无法被捕获了！</strong></p>
-                <p>由于时隔很久才发现这个问题，所以已经忘记了当初的逻辑，经过一番研究才发现是因为包版本的问题，ResponseEntityExceptionHandler类已经实现了部分异常的处理，其中就包括MethodArgumentNotValidException，因此我们需要重写这个异常的处理类。</p>
-                <p>springboot的 源代码如下：</p>
-                <pre class="java"><code><span class="keyword">@ExceptionHandler</span>({HttpRequestMethodNotSupportedException.class, HttpMediaTypeNotSupportedException.class, HttpMediaTypeNotAcceptableException.class, MissingPathVariableException.class, MissingServletRequestParameterException.class, ServletRequestBindingException.class, ConversionNotSupportedException.class, TypeMismatchException.class, HttpMessageNotReadableException.class, HttpMessageNotWritableException.class, MethodArgumentNotValidException.class, MissingServletRequestPartException.class, BindException.class, NoHandlerFoundException.class, AsyncRequestTimeoutException.class})
+            <h2 id="section4">新的问题</h2>
+            <p>这个版本的异常捕获，需要继承：<code>ResponseEntityExceptionHandler</code>类。但此时出现了第二个问题，<strong>参数校验的异常MethodArgumentNotValidException无法被捕获了！</strong></p>
+            <p>由于时隔很久才发现这个问题，所以已经忘记了当初的逻辑，经过一番研究才发现是因为包版本的问题，ResponseEntityExceptionHandler类已经实现了部分异常的处理，其中就包括MethodArgumentNotValidException，因此我们需要重写这个异常的处理类。</p>
+            <p>springboot的 源代码如下：</p>
+            <pre class="java"><code><span class="keyword">@ExceptionHandler</span>({HttpRequestMethodNotSupportedException.class, HttpMediaTypeNotSupportedException.class, HttpMediaTypeNotAcceptableException.class, MissingPathVariableException.class, MissingServletRequestParameterException.class, ServletRequestBindingException.class, ConversionNotSupportedException.class, TypeMismatchException.class, HttpMessageNotReadableException.class, HttpMessageNotWritableException.class, MethodArgumentNotValidException.class, MissingServletRequestPartException.class, BindException.class, NoHandlerFoundException.class, AsyncRequestTimeoutException.class})
     <span class="keyword">@Nullable</span>
     <span class="keyword">public final</span> ResponseEntity&lt;Object&gt; handleException(Exception ex, WebRequest request) <span class="keyword">throws</span> Exception {
         HttpHeaders headers = <span class="keyword">new</span> HttpHeaders();
@@ -417,8 +420,8 @@
     <span class="keyword">return this</span>.handleExceptionInternal(ex, (Object)<span class="keyword">null</span>, headers, status, request);
 }
                 </code></pre>
-                <p>重写后完整的异常捕获代码如下：</p>
-                <pre class="java"><code><span class="keyword">@RestControllerAdvice</span>
+            <p>重写后完整的异常捕获代码如下：</p>
+            <pre class="java"><code><span class="keyword">@RestControllerAdvice</span>
 <span class="keyword">@Slf4j</span>
 <span class="keyword">public class</span> GlobalExceptionHandler <span class="keyword">extends</span> ResponseEntityExceptionHandler {
 
@@ -447,56 +450,59 @@
     }
 }
                 </code></pre>
-                <p><strong>这里必须用@Override 而不能继续用@ExceptionHandler注解了！</strong></p>
-                <p>考虑到已经马上就要上线，大动干戈不合适。因此仅对ExceptionHandlerAdvice的MethodArgumentNotValidException的异常处理做了注释，其他代码不动。</p>
+            <p><strong>这里必须用@Override 而不能继续用@ExceptionHandler注解了！</strong></p>
+            <p>考虑到已经马上就要上线，大动干戈不合适。因此仅对ExceptionHandlerAdvice的MethodArgumentNotValidException的异常处理做了注释，其他代码不动。</p>
 
-                <div class="article-tags">
-                    <a href="#">Springboot</a>
-                    <a href="#">全局异常</a>
-                    <a href="#">MultipartException</a>
-                    <a href="#">ResponseEntityExceptionHandler</a>
-                </div>
-            </section>
-        </main>
-        <aside>
-            <section class="section toc">
-                <h3>文章目录</h3>
-                <ul>
-                    <li><a href="#section1">常见的捕获方式：</a></li>
-                    <li><a href="#section2">一、使用ControllerAdvice注解</a></li>
-                    <li><a href="#section2-1">1. 使用@ControllerAdvice注解</a></li>
-                    <li><a href="#section2-2">2. 方法中使用@ExceptionHandler注解</a></li>
-                    <li><a href="#section3">二、使用@RestControllerAdvice注解</a></li>
-                    <li><a href="#section4">新的问题</a></li>
-                </ul>
-            </section>
-            <section class="section tags">
-                <h3>文章标签</h3>
-                <div>
-                    <a href="#" class="article-tags">Springboot</a>
-                    <a href="#" class="article-tags">全局异常</a>
-                    <a href="#" class="article-tags">MultipartException</a>
-                    <a href="#" class="article-tags">ResponseEntityExceptionHandler</a>
-                </div>
-            </section>
-            <section class="section hot-posts">
-                <h3>热门文章</h3>
-                <ul>
-                    <li><a href="#">Spring Boot 3.3实战</a></li>
-                    <li><a href="#">Hibernate性能优化</a></li>
-                    <li><a href="#">Java并发编程入门</a></li>
-                </ul>
-            </section>
-        </aside>
+            <div class="article-tags">
+                <a href="#">Springboot</a>
+                <a href="#">全局异常</a>
+                <a href="#">MultipartException</a>
+                <a href="#">ResponseEntityExceptionHandler</a>
+            </div>
+        </section>
+    </main>
+    <aside>
+        <section class="section toc">
+            <h3>文章目录</h3>
+            <ul>
+                <li><a href="#section1">常见的捕获方式：</a></li>
+                <li><a href="#section2">一、使用ControllerAdvice注解</a>
+                    <ul>
+                        <li><a href="#section2-1">1. 使用@ControllerAdvice(basePackages = { "com.c.airhub.config.admin.web"})注解</a></li>
+                        <li><a href="#section2-2">2. 方法中使用 @ExceptionHandler注解，指定具体的异常</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section3">二、使用@RestControllerAdvice注解</a></li>
+                <li><a href="#section4">新的问题</a></li>
+            </ul>
+        </section>
+        <section class="section tags">
+            <h3>文章标签</h3>
+            <div>
+                <a href="#" class="article-tags">Springboot</a>
+                <a href="#" class="article-tags">全局异常</a>
+                <a href="#" class="article-tags">MultipartException</a>
+                <a href="#" class="article-tags">ResponseEntityExceptionHandler</a>
+            </div>
+        </section>
+        <section class="section hot-posts">
+            <h3>热门文章</h3>
+            <ul>
+                <li><a href="#">Spring Boot 3.3实战</a></li>
+                <li><a href="#">Hibernate性能优化</a></li>
+                <li><a href="#">Java并发编程入门</a></li>
+            </ul>
+        </section>
+    </aside>
+</div>
+<footer>
+    <div class="social">
+        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <footer>
-        <div class="social">
-            <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
-            <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
-            <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
-        </div>
-        <p>联系方式：liming@email.com | <a href="#">服务条款</a></p>
-        <p>© 2025 Java技术站 版权所有</p>
-    </footer>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+    <p>© 2025 Java技术站 版权所有</p>
+</footer>
 </body>
 </html>
