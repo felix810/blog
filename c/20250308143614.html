@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>凌晨支付异常的线上问题</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F9FC;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        .top-bar {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: white;
+        }
+        nav {
+            background-color: #FFFFFF;
+            padding: 15px 0;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+            box-sizing: border-box;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        nav li {
+            position: relative;
+            margin: 0 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #4A90E2;
+            font-weight: bold;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #F5A623;
+        }
+        nav i {
+            margin-right: 8px;
+        }
+        nav .dropdown {
+            display: none;
+            position: absolute;
+            background-color: #FFFFFF;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            top: 100%;
+            left: 0;
+            border-radius: 8px;
+        }
+        nav li:hover .dropdown {
+            display: block;
+        }
+        nav .dropdown a {
+            padding: 10px;
+            color: #4A90E2;
+            font-weight: normal;
+        }
+        nav .dropdown a:hover {
+            background-color: #E9F1FF;
+            color: #F5A623;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 120px auto 20px;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        main {
+            flex: 2;
+            max-width: 100%;
+        }
+        aside {
+            width: 350px;
+            flex-shrink: 0;
+            max-width: 100%;
+        }
+        .section {
+            background-color: #FFFFFF;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+            box-sizing: border-box;
+        }
+        .section h1 {
+            color: #4A90E2;
+            font-size: 2.5em;
+            margin: 0 0 15px;
+            word-wrap: break-word;
+        }
+        .section h2 {
+            color: #4A90E2;
+            font-size: 1.8em;
+            margin: 25px 0 15px;
+            word-wrap: break-word;
+        }
+        .section h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+            word-wrap: break-word;
+        }
+        .article-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin: 10px 0;
+        }
+        .article-content p {
+            margin: 15px 0;
+            word-wrap: break-word;
+        }
+        .article-content pre {
+            background-color: #2D2D2D;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.95em;
+            color: #ABB2BF;
+            border: 1px solid #404040;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .article-content pre code {
+            display: block;
+        }
+        .article-content pre.java span.keyword {
+            color: #E5C07B;
+        }
+        .article-content pre.java span.string {
+            color: #98C379;
+        }
+        .article-content pre.java span.comment {
+            color: #5C6370;
+        }
+        .article-content pre.sql span.keyword {
+            color: #C678DD;
+        }
+        .article-content pre.sql span.string {
+            color: #E06C75;
+        }
+        .article-content pre.python span.keyword {
+            color: #D19A66;
+        }
+        .article-content pre.python span.string {
+            color: #98C379;
+        }
+        .article-content pre.python span.comment {
+            color: #5C6370;
+        }
+        .article-content code {
+            background-color: #333;
+            color: #E9ECEF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            word-wrap: break-word;
+        }
+        .article-content blockquote {
+            background-color: #F5F6F5;
+            border-left: 4px solid #4A90E2;
+            padding: 10px 15px;
+            margin: 15px 0;
+            color: #555;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .article-content ol {
+            padding-left: 20px;
+        }
+        .article-content ol ol {
+            list-style-type: lower-alpha;
+        }
+        .article-content ol ol ol {
+            list-style-type: lower-roman;
+        }
+        .article-content ol ol ol ol {
+            list-style-type: decimal;
+        }
+        .article-content ol ol ol ol ol {
+            list-style-type: lower-alpha;
+        }
+        .article-tags {
+            margin: 20px 0;
+        }
+        .article-tags a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #E9F1FF;
+            color: #4A90E2;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        aside .section {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        aside ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        aside li {
+            margin: 10px 0;
+        }
+        aside .toc ul ul {
+            margin-left: 20px;
+        }
+        aside .toc ul ul ul {
+            margin-left: 40px;
+        }
+        aside a {
+            color: #4A90E2;
+            text-decoration: none;
+            transition: color 0.3s;
+            word-wrap: break-word;
+        }
+        aside a:hover {
+            color: #F5A623;
+        }
+        .toc h3, .tags h3, .hot-posts h3 {
+            color: #4A90E2;
+            font-size: 1.6em;
+            margin: 0 0 15px;
+        }
+        footer {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin-top: 20px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        footer .social a {
+            color: #F5A623;
+            margin: 0 10px;
+            font-size: 1.5em;
+            transition: color 0.3s;
+        }
+        footer .social a:hover {
+            color: #FF7F50;
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <h1>Java技术站</h1>
+</div>
+<nav>
+    <ul>
+        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
+        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+            <div class="dropdown">
+                <a href="#">Spring Boot</a>
+                <a href="#">Spring Security</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
+        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
+        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
+        <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <main>
+        <section class="section article-content">
+            <h1>凌晨支付异常的线上问题</h1>
+            <div class="article-meta">发布于：2025-04-08</div>
+
+            <h2 id="section1">问题现象</h2>
+            <p>凌晨02分，发现支付失败的有告警通知</p>
+
+            <h2 id="section2">排查原因</h2>
+            <p>支付依赖的ID生成器服务，其中每天有个定时任务</p>
+            <p>目前xxljob平台的调度配置：定时任务：每天凌晨 0 点整执行一次任务</p>
+            <p>期望逻辑：T日凌晨0点执行，生成T+1日期的数据</p>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1744179216665-2f0632d7-0e98-4845-a22f-a7056e71386b.png" alt="期望逻辑图"></p>
+            <p>例如：0219日凌晨0点执行，生成0220日期的数据</p>
+            <p><strong>根本原因分析</strong>：</p>
+            <ol>
+                <li>0220日凌晨执行【正常】，生成0221日期的数据【☑️】</li>
+                <li>正常期间逻辑：0221日凌晨执行，生成0222日期的数据【实际❌】</li>
+                <li>0221日凌晨xxljob执行的任务 <strong>因被提前了1秒，导致跨天执行【期望21日执行 实际 20日执行】</strong>，</li>
+                <li>导致0220日任务执行了两次【做了幂等】，但<strong>没有生成期望的0222日期数据</strong></li>
+            </ol>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1744180120884-1695cbc7-9e4f-47ac-967f-d230a37bd276.png" alt="异常原因图"></p>
+            <p>从中间件的xxljob的调度日志上可以看到</p>
+            <p>正常执行，例如：2025-02-18 00:00:00执行，如下图</p>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1744179216656-dd11794e-3647-4878-9c61-1e716a86e58b.png" alt="正常执行日志 02-18"></p>
+            <p>正常执行，例如：2025-02-19 00:00:00执行，如下图</p>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1744179216676-9d76975f-52cb-49c4-b2ab-5c6bb7bbc04a.png" alt="正常执行日志 02-19"></p>
+            <p>异常：2025-02-21 00:00:00的任务执行，实际执行时间：<strong>2025-02-20 23:59:59【导致被跨天】</strong></p>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1744179217154-d9fb5e1b-7956-415b-b2eb-383ca687584b.png" alt="异常执行日志"></p>
+            <p>另外：研发测的告警是有的【整个技术基于日志】，每日ID生成器初始化报告【正常程序本身导致的问题是可以告警】，【因当前case，稍微特殊因跨天，0221连日志都没有生成，所有没有告警*（不管成功是否）】</p>
+
+            <h2 id="section3">处理方案</h2>
+            <p>手动执行sql预案</p>
+            <pre class="sql"><code>INSERT INTO `xxxxx-table`
+(`biz_tag`, `leaf_type`, `day_str`, `max_id`, `min_id`, `step`, `description`, `update_time`)
+VALUES ('c-payment-server-no', 2, '2025-02-22', 1002000000, 1000000000, 100000, 'payment', '2025-02-21 19:07:48');
+</code></pre>
+
+            <h2 id="section4">后续优化</h2>
+            <ol>
+                <li><strong>ID生成器任务执行-兜底优化</strong>
+                    <ol>
+                        <li>ID生成器-初始化每日id标签任务从每天凌晨执行一次，【做一下技术兜底执行】调整为每天执行三次【顺延1分】：0 1 0,8,13 * * ? 每天0、8、13点01分分别执行一次</li>
+                    </ol>
+                </li>
+                <li><strong>当前告警策略优化</strong>
+                    <ol>
+                        <li>单独群告警群，避免和其他告警一起被淹没</li>
+                        <li>告警次数从每天一次-&gt;每天3次【顺延5分】</li>
+                    </ol>
+                </li>
+                <li><strong>新增告警兜底优化</strong>
+                    <ol>
+                        <li>ID生成器相关告警【新增基于数据核对方案】</li>
+                        <li>新增告警策略:T天检查T+1数据是否生成，若没有生成，则需要提前单独群告警&amp;新增电话告警</li>
+                    </ol>
+                </li>
+            </ol>
+
+            <div class="article-tags">
+                <a href="#">支付异常</a>
+                <a href="#">ID生成器</a>
+                <a href="#">XXL-JOB</a>
+                <a href="#">告警优化</a>
+            </div>
+        </section>
+    </main>
+    <aside>
+        <section class="section toc">
+            <h3>文章目录</h3>
+            <ul>
+                <li><a href="#section1">问题现象</a></li>
+                <li><a href="#section2">排查原因</a></li>
+                <li><a href="#section3">处理方案</a></li>
+                <li><a href="#section4">后续优化</a></li>
+            </ul>
+        </section>
+        <section class="section tags">
+            <h3>文章标签</h3>
+            <div>
+                <a href="#" class="article-tags">支付异常</a>
+                <a href="#" class="article-tags">ID生成器</a>
+                <a href="#" class="article-tags">XXL-JOB</a>
+                <a href="#" class="article-tags">告警优化</a>
+            </div>
+        </section>
+        <section class="section hot-posts">
+            <h3>热门文章</h3>
+            <ul>
+                <li><a href="#">Spring Boot 3.3实战</a></li>
+                <li><a href="#">Hibernate性能优化</a></li>
+                <li><a href="#">Java并发编程入门</a></li>
+            </ul>
+        </section>
+    </aside>
+</div>
+<footer>
+    <div class="social">
+        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+    </div>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
+    <p>© 2025 Java技术站 版权所有</p>
+</footer>
+</body>
+</html>
