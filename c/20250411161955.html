@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="no-referrer">
-    <title>XXL-JOB 分布式任务调度平台原理与源码分析</title>
+    <title>XXL-JOB原理及任务注册与心跳源码分析</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -157,6 +157,7 @@
             word-break: break-word;
             max-width: 100%;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
         .article-content pre code {
             display: block;
@@ -181,11 +182,22 @@
         .article-content blockquote {
             background-color: #F5F6F5;
             border-left: 4px solid #4A90E2;
-            padding: 10px 15px;
+            padding: 15px;
             margin: 15px 0;
             color: #555;
             border-radius: 4px;
             word-wrap: break-word;
+            font-size: 0.95em;
+            line-height: 1.5;
+            position: relative;
+        }
+        .article-content blockquote::before {
+            content: '“';
+            font-size: 1.5em;
+            color: #4A90E2;
+            position: absolute;
+            top: 10px;
+            left: 10px;
         }
         .article-content img {
             max-width: 100%;
@@ -196,6 +208,9 @@
         }
         .article-content ol {
             padding-left: 20px;
+        }
+        .article-content ol li {
+            margin: 10px 0;
         }
         .article-content ol ol {
             list-style-type: lower-alpha;
@@ -233,14 +248,11 @@
         aside li {
             margin: 10px 0;
         }
-        aside .toc ul {
-            margin-left: 0;
-        }
         aside .toc ul ul {
-            margin-left: 20px;
+            margin-left: 15px;
         }
         aside .toc ul ul ul {
-            margin-left: 40px;
+            margin-left: 30px;
         }
         aside a {
             color: #4A90E2;
@@ -304,49 +316,52 @@
 <div class="container">
     <main>
         <section class="section article-content">
-            <h1>XXL-JOB 分布式任务调度平台原理与源码分析</h1>
+            <h1>XXL-JOB原理及任务注册与心跳源码分析</h1>
             <div class="article-meta">发布于：2025-04-11</div>
             <p>XXL-JOB 是一个分布式任务调度平台，其核心原理基于任务调度中心与执行器的解耦设计，通过中心式调度和分布式执行的方式，实现任务的高效管理和执行。</p>
             <p>以下分析以2.2.0版本为基础</p>
 
             <h2 id="principle">原理</h2>
-
-            <h3 id="principle-modules">1. 主要模块</h3>
+            <h3 id="main-modules">1. 主要模块</h3>
             <ol>
-                <li><code>xxl-job-core</code>：核心模块，包含了 XXL-JOB 的核心功能和基础类库。</li>
-                <li><code>xxl-job-admin</code>：调度中心，提供了 Web 界面用于任务的管理和调度，支持任务的 CRUD 操作、动态修改任务状态等功能。</li>
-                <li><code>xxl-job-executor-samples</code>：执行器示例模块，包含了不同框架的执行器示例，如无框架示例、Spring Boot 示例等。</li>
+                <li><strong>xxl-job-core</strong>：核心模块，包含了 XXL-JOB 的核心功能和基础类库。</li>
+                <li><strong>xxl-job-admin</strong>：调度中心，提供了 Web 界面用于任务的管理和调度，支持任务的 CRUD 操作、动态修改任务状态等功能。</li>
+                <li><strong>xxl-job-executor-samples</strong>：执行器示例模块，包含了不同框架的执行器示例，如无框架示例、Spring Boot 示例等。</li>
             </ol>
 
-            <h3 id="principle-architecture">2. 架构设计</h3>
+            <h3 id="architecture-design">2. 架构设计</h3>
             <p>XXL-JOB 的架构主要由两部分组成：<strong>调度中心</strong>和<strong>执行器</strong>。</p>
             <ul>
                 <li><strong>调度中心</strong>：负责管理任务的调度信息，按照配置的触发策略（如 Cron 表达式）发出调度请求。调度中心不直接执行业务逻辑，而是通过远程调用的方式通知执行器执行任务。</li>
                 <li><strong>执行器</strong>：负责接收调度中心的调度请求，并执行具体的任务逻辑。执行器可以部署在多个节点上，支持集群部署，从而保证任务执行的高可用性。</li>
             </ul>
 
-            <h3 id="principle-registration-heartbeat">3. 任务注册与心跳机制</h3>
-            <h4 id="principle-registration">a. 任务注册</h4>
+            <h3 id="task-registration-heartbeat">3. 任务注册与心跳机制</h3>
             <ol>
-                <li>执行器启动时，会通过 <code>@XxlJob</code> 注解扫描项目中的任务方法，并将这些任务注册到调度中心。</li>
-                <li>注册信息包括执行器的名称（<code>appname</code>）、IP 地址和端口号等。</li>
-                <li>调度中心接收到注册信息后，会将其存储到数据库中，并用于后续的任务调度。</li>
-            </ol>
-            <h4 id="principle-heartbeat">b. 心跳机制</h4>
-            <ol>
-                <li>执行器会定期（默认每 30 秒）向调度中心发送心跳信号。</li>
-                <li>心跳信号用于告知调度中心执行器的当前状态（如是否在线）。如果调度中心在一定时间内（默认 90 秒）未收到执行器的心跳信号，则认为该执行器已下线。</li>
-                <li>心跳机制确保了调度中心能够实时了解执行器的状态，并在执行器下线时及时重新分配任务。</li>
+                <li><strong>任务注册</strong>
+                    <ol>
+                        <li>执行器启动时，会通过 <code>@XxlJob</code> 注解扫描项目中的任务方法，并将这些任务注册到调度中心。</li>
+                        <li>注册信息包括执行器的名称（<code>appname</code>）、IP 地址和端口号等。</li>
+                        <li>调度中心接收到注册信息后，会将其存储到数据库中，并用于后续的任务调度。</li>
+                    </ol>
+                </li>
+                <li><strong>心跳机制</strong>
+                    <ol>
+                        <li>执行器会定期（默认每 30 秒）向调度中心发送心跳信号。</li>
+                        <li>心跳信号用于告知调度中心执行器的当前状态（如是否在线）。如果调度中心在一定时间内（默认 90 秒）未收到执行器的心跳信号，则认为该执行器已下线。</li>
+                        <li>心跳机制确保了调度中心能够实时了解执行器的状态，并在执行器下线时及时重新分配任务。</li>
+                    </ol>
+                </li>
             </ol>
 
-            <h3 id="principle-scheduling">4. 任务调度流程</h3>
+            <h3 id="task-scheduling-process">4. 任务调度流程</h3>
             <ol>
                 <li><strong>调度中心触发任务</strong>：根据任务的触发策略（如 Cron 表达式），调度中心在指定的时间点向执行器发送任务执行请求。</li>
                 <li><strong>执行器接收并执行任务</strong>：执行器接收到任务请求后，根据任务的 <code>JobHandler</code> 名称找到对应的任务方法，并执行该方法。</li>
                 <li><strong>任务日志记录</strong>：任务执行过程中，执行器会通过 <code>XxlJobLogger</code> 打印日志，调度中心可以通过任务日志查看任务的执行情况。</li>
             </ol>
 
-            <h3 id="principle-dynamic-management">5. 任务的动态管理</h3>
+            <h3 id="dynamic-task-management">5. 任务的动态管理</h3>
             <p>XXL-JOB 支持通过 Web 页面对任务进行动态管理，包括：</p>
             <ul>
                 <li>动态修改任务状态（如启动、停止）。</li>
@@ -354,27 +369,26 @@
                 <li>查看任务的执行日志。</li>
             </ul>
 
-            <h3 id="principle-ha-scalability">6. 高可用性与扩展性</h3>
+            <h3 id="high-availability-scalability">6. 高可用性与扩展性</h3>
             <ul>
                 <li><strong>调度中心 HA</strong>：调度中心支持集群部署，通过数据库存储任务信息，确保调度中心的高可用性。</li>
                 <li><strong>执行器 HA</strong>：执行器支持集群部署，任务可以在多个执行器节点上分布执行，确保任务执行的高可用性。</li>
                 <li><strong>弹性扩容缩容</strong>：当有新的执行器节点上线或下线时，调度中心会自动重新分配任务。</li>
             </ul>
 
-            <h3 id="principle-execution-modes">7. 任务执行模式</h3>
+            <h3 id="task-execution-modes">7. 任务执行模式</h3>
             <p>XXL-JOB 支持两种任务执行模式：</p>
             <ul>
                 <li><strong>Bean 模式</strong>：任务以 Spring Bean 的形式开发，通过 <code>@XxlJob</code> 注解标记任务方法。</li>
                 <li><strong>GLUE 模式</strong>：任务代码存储在数据库中，执行器动态加载任务代码并执行。</li>
             </ul>
 
-            <h3 id="principle-summary">8. 总结</h3>
+            <h3 id="summary">8. 总结</h3>
             <p>XXL-JOB 通过中心式调度和分布式执行的设计，实现了任务的高效管理和执行。其任务注册和心跳机制确保了调度中心与执行器之间的通信可靠性，动态管理功能则提供了灵活的任务操作能力。</p>
 
-            <h2 id="source-analysis">源码分析</h2>
-
-            <h3 id="source-registration-heartbeat">1. 任务注册与心跳</h3>
-            <h4 id="source-annotation-scanning">a. 注解扫描与注册</h4>
+            <h2 id="source-code-analysis">源码分析</h2>
+            <h3 id="task-registration-heartbeat-source">1. 任务注册与心跳</h3>
+            <h4 id="annotation-scanning-registration">a. 注解扫描与注册</h4>
             <p><code>@XxlJob</code> 注解的生效主要依赖于 <code>XxlJobSpringExecutor</code> 类，该类继承自 <code>XxlJobExecutor</code> 并实现了 <code>ApplicationContextAware</code>、<code>SmartInitializingSingleton</code> 和 <code>DisposableBean</code> 接口。</p>
             <p>在 <code>XxlJobSpringExecutor</code> 的 <code>afterSingletonsInstantiated</code> 方法中，会进行 <code>@XxlJob</code> 注解的扫描和注册：</p>
             <pre class="java"><code>@Override
@@ -394,7 +408,7 @@ public void afterSingletonsInstantiated() {
 }
 </code></pre>
             <p><code>initJobHandlerMethodRepository</code> 方法会扫描所有 Bean 中的方法，查找带有 <code>@XxlJob</code> 注解的方法，并将其注册到任务处理器仓库中：</p>
-            <p><em>此处只是展示主要的代码，部分代码略过</em></p>
+            <p>此处只是展示主要的代码，部分代码略过</p>
             <pre class="java"><code>private void initJobHandlerMethodRepository(ApplicationContext applicationContext) {
     if (applicationContext == null) {
         return;
@@ -405,7 +419,7 @@ public void afterSingletonsInstantiated() {
         // get bean
         Object bean = null;
         Lazy onBean = applicationContext.findAnnotationOnBean(beanDefinitionName, Lazy.class);
-        if (onBean!=null){
+        if (onBean != null) {
             logger.debug(<span class="string">"xxl-job annotation scan, skip @Lazy Bean:{}"</span>, beanDefinitionName);
             continue;
         } else {
@@ -423,9 +437,9 @@ public void afterSingletonsInstantiated() {
                     }
                 });
         } catch (Throwable ex) {
-            logger.error(<span class="string">"xxl-job method-jobhandler resolve error for bean[{}]"</span>, beanDefinitionName, ex);
+            logger.error(<span class="string">"xxl-job method-jobhandler resolve error for bean[{}]"</span>, ex);
         }
-        if (annotatedMethods==null || annotatedMethods.isEmpty()) {
+        if (annotatedMethods == null || annotatedMethods.isEmpty()) {
             continue;
         }
 
@@ -459,50 +473,60 @@ public void afterSingletonsInstantiated() {
     }
 }
 </code></pre>
-            <h4 id="source-initialize-tasks">b. 初始化任务</h4>
+
+            <h4 id="task-initialization">b. 初始化任务</h4>
             <p><code>XxlJobSpringExecutor</code> 类的 <code>afterSingletonsInstantiated</code> 方法中调用了父类 <code>XxlJobExecutor</code> 类的 <code>start</code> 方法，来看看 <code>start()</code></p>
             <pre class="java"><code>public void start() throws Exception {
     // 初始化日志路径
-    XxlJobFileAppender.initLogPath(logPath);
+    // 作用：为后续任务执行日志的记录提供基础，保证日志能够正确存储到指定路径。
+    <span class="comment">XxlJobFileAppender.initLogPath(logPath);</span>
 
-    // 初始化调度中心客户端
-    initAdminBizList(adminAddresses, accessToken);
+    // 初始化调度中心客户端，根据配置的调度中心地址 adminAddresses 和访问令牌 accessToken，初始化与调度中心通信的客户端列表 adminBizList。
+    // 作用：建立执行器与调度中心之间的通信通道，以便执行器能够接收调度中心的调度任务和指令。
+    <span class="comment">initAdminBizList(adminAddresses, accessToken);</span>
 
     // 启动日志清理线程
-    JobLogFileCleanThread.getInstance().start(<span class="keyword">long</span>RetentionDays);
+    // 作用：启动日志文件清理线程，保留指定天数的日志，通过创建新的守护线程，且每天执行一次
+    <span class="comment">JobLogFileCleanThread.getInstance().start(logRetentionDays);</span>
 
     // 启动触发回调线程
-    TriggerCallbackThread.getInstance().start();
+    <span class="comment">TriggerCallbackThread.getInstance().start();</span>
 
-    // 初始化嵌入式服务器
-    initEmbedServer(address, ip, port, appname, accessToken);
+    // 初始化嵌入式服务器，启动嵌入式服务器，绑定 IP 和端口，并注册服务。
+    <span class="comment">initEmbedServer(address, ip, port, appname, accessToken);</span>
 }
 </code></pre>
             <p>重点看看下面几个方法：</p>
-            <h5 id="source-callback-thread">i. 回调线程</h5>
-            <pre class="java"><code>TriggerCallbackThread.getInstance().start();
-</code></pre>
-            <pre class="java"><code>public void start() {
+            <ol>
+                <li><strong>回调线程</strong>
+                    <p><code>TriggerCallbackThread.getInstance().start();</code></p>
+                    <pre class="java"><code>public void start() {
     // valid
     if (XxlJobExecutor.getAdminBizList() == null) {
-        logger.warn(<span class="string">"xxxxxxxxx xxl-job, executor callback config fail, adminAddresses is null."</span>);
+        logger.warn(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor callback config fail, adminAddresses is null."</span>);
         return;
     }
 
-    // 创建触发回调线程
+    // 创建一个名为 triggerCallbackThread 的线程，用于处理正常的回调逻辑。
+    // 这个线程会一直运行直到 toStop 变量为 true
     triggerCallbackThread = new Thread(new Runnable() {
         @Override
         public void run() {
             // 正常回调
-            while(!toStop){
+            while (!toStop) {
                 try {
+                    // 线程尝试从回调队列 callBackQueue 中取出回调参数 HandleCallbackParam。
                     HandleCallbackParam callback = getInstance().callBackQueue.take();
                     if (callback != null) {
+                        // 尝试将队列中的所有回调参数取出并添加到一个列表 callbackParamList 中。
+                        // 通过队列的 drainTo 方法
                         List&lt;HandleCallbackParam&gt; callbackParamList = new ArrayList&lt;HandleCallbackParam&gt;();
                         int drainToNum = getInstance().callBackQueue.drainTo(callbackParamList);
                         callbackParamList.add(callback);
 
-                        if (callbackParamList!=null && callbackParamList.size()>0) {
+                        // 如果发生错误会进行重试。
+                        if (callbackParamList != null && callbackParamList.size() > 0) {
+                            // doCallback 方法大致逻辑：尝试进行回调，回调成功则记录成功日志。回调失败或者异常，则将回调参数写入失败回调文件
                             doCallback(callbackParamList);
                         }
                     }
@@ -517,7 +541,7 @@ public void afterSingletonsInstantiated() {
             try {
                 List&lt;HandleCallbackParam&gt; callbackParamList = new ArrayList&lt;HandleCallbackParam&gt;();
                 int drainToNum = getInstance().callBackQueue.drainTo(callbackParamList);
-                if (callbackParamList!=null && callbackParamList.size()>0) {
+                if (callbackParamList != null && callbackParamList.size() > 0) {
                     doCallback(callbackParamList);
                 }
             } catch (Exception e) {
@@ -525,19 +549,21 @@ public void afterSingletonsInstantiated() {
                     logger.error(e.getMessage(), e);
                 }
             }
-            logger.info(<span class="string">"xxxxxxxxx xxl-job, executor callback thread destory."</span>);
+            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor callback thread destroy."</span>);
         }
     });
+    // 设置守护线程
     triggerCallbackThread.setDaemon(true);
     triggerCallbackThread.setName(<span class="string">"xxl-job, executor TriggerCallbackThread"</span>);
     triggerCallbackThread.start();
 
-    // 失败重试回调线程
+    // 用于处理回调失败的重试逻辑。这个线程同样会一直运行直到 toStop 变量为 true
     triggerRetryCallbackThread = new Thread(new Runnable() {
         @Override
         public void run() {
-            while(!toStop){
+            while (!toStop) {
                 try {
+                    // retryFailCallbackFile 方法大致逻辑，从失败回调文件中拿出参数，调 doCallback 方法进行回调操作。
                     retryFailCallbackFile();
                 } catch (Exception e) {
                     if (!toStop) {
@@ -552,28 +578,32 @@ public void afterSingletonsInstantiated() {
                     }
                 }
             }
-            logger.info(<span class="string">"xxxxxxxxx xxl-job, executor retry callback thread destory."</span>);
+            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor retry callback thread destroy."</span>);
         }
     });
     triggerRetryCallbackThread.setDaemon(true);
     triggerRetryCallbackThread.start();
 }
 </code></pre>
-            <p><code>doCallback</code> 回调逻辑，调用 <code>com.xxl.job.core.biz.client.AdminBizClient#callback</code> 方法，向 xxl-job 控制台发送请求。实际上就是 xxl-job-admin 模块的 <code>com.xxl.job.admin.controller.JobApiController#api</code> 方法。</p>
-            <pre class="java"><code>public ReturnT&lt;String&gt; callback(List&lt;HandleCallbackParam&gt; callbackParamList) {
+                    <p><code>doCallback</code> 回调逻辑，调用 <code>com.xxl.job.core.biz.client.AdminBizClient#callback</code> 方法，向 xxl-job 控制台发送请求。实际上就是 xxl-job-admin 模块的 <code>com.xxl.job.admin.controller.JobApiController#api</code> 方法。</p>
+                    <pre class="java"><code>public ReturnT&lt;String&gt; callback(List&lt;HandleCallbackParam&gt; callbackParamList) {
     return XxlJobRemotingUtil.postBody(this.addressUrl + <span class="string">"api/callback"</span>, this.accessToken, this.timeout, callbackParamList, String.class);
 }
 </code></pre>
-            <h5 id="source-task-registration">ii. 任务注册</h5>
-            <p><code>initEmbedServer</code> 方法可以略过，主要看它所调用的另一个方法 <code>com.xxl.job.core.server.EmbedServer#start</code></p>
-            <p>主要功能是启动一个嵌入式 HTTP 服务器，监听特定端口，处理 HTTP 请求，并将请求分发给业务逻辑线程池处理。同时，它还包含了服务器启动和关闭的相关逻辑</p>
-            <pre class="java"><code>public void start(final String address, final int port, final String appname, final String accessToken) {
+                </li>
+                <li><strong>任务注册</strong>
+                    <p><code>initEmbedServer</code> 方法可以略过，主要看它所调用的另一个方法 <code>com.xxl.job.core.server.EmbedServer#start</code></p>
+                    <p>主要功能是启动一个嵌入式 HTTP 服务器，监听特定端口，处理 HTTP 请求，并将请求分发给业务逻辑线程池处理。同时，它还包含了服务器启动和关闭的相关逻辑</p>
+                    <pre class="java"><code>public void start(final String address, final int port, final String appname, final String accessToken) {
     executorBiz = new ExecutorBizImpl();
     thread = new Thread(new Runnable() {
         @Override
         public void run() {
+            // bossGroup 用于接受连接
             EventLoopGroup bossGroup = new NioEventLoopGroup();
+            // workerGroup 用于处理连接的流量。
             EventLoopGroup workerGroup = new NioEventLoopGroup();
+            // 用于处理业务逻辑的线程池
             ThreadPoolExecutor bizThreadPool = new ThreadPoolExecutor(
                 0,
                 200,
@@ -594,33 +624,46 @@ public void afterSingletonsInstantiated() {
                 });
 
             try {
+                // 使用 ServerBootstrap 来配置服务器
                 ServerBootstrap bootstrap = new ServerBootstrap();
+                // 设置 EventLoopGroup
                 bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer&lt;SocketChannel&gt;() {
                         @Override
                         public void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline()
+                                // IdleStateHandler：用于处理空闲连接，如果 30*3 秒（90 秒）内没有任何活动，则关闭连接。
                                 .addLast(new IdleStateHandler(0, 0, 30 * 3, TimeUnit.SECONDS))
+                                // HttpServerCodec：HTTP 请求和响应的编解码器。
                                 .addLast(new HttpServerCodec())
+                                // HttpObjectAggregator：将 HTTP 请求和响应聚合成完整的对象，最大大小为 5MB。
                                 .addLast(new HttpObjectAggregator(5 * 1024 * 1024))
+                                // EmbedHttpServerHandler：自定义的处理器，用于处理 HTTP 请求，传入了业务执行器、访问令牌和业务线程池。
                                 .addLast(new EmbedHttpServerHandler(executorBiz, accessToken, bizThreadPool));
                         }
                     })
+                    // 设置通道选项，例如启用 TCP 的 SO_KEEPALIVE 选项以保持连接活跃。
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
+                // 绑定服务器到指定的端口，并同步等待绑定操作完成
                 ChannelFuture future = bootstrap.bind(port).sync();
-                logger.info(<span class="string">"xxxxxxxxx xxl-job remoting server start success, nettype = {}, port = {}"</span>, EmbedServer.class, port);
 
+                logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job remoting server start success, nettype = {}, port = {}"</span>, EmbedServer.class, port);
+
+                // 启动注册中心
                 startRegistry(appname, address);
+
+                // 阻塞当前线程直到服务器关闭
                 future.channel().closeFuture().sync();
             } catch (InterruptedException e) {
                 if (e instanceof InterruptedException) {
-                    logger.info(<span class="string">"xxxxxxxxx xxl-job remoting server stop."</span>);
+                    logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job remoting server stop."</span>);
                 } else {
-                    logger.error(<span class="string">"xxxxxxxxx xxl-job remoting server error."</span>, e);
+                    logger.error(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job remoting server error."</span>, e);
                 }
             } finally {
+                // stop
                 try {
                     workerGroup.shutdownGracefully();
                     bossGroup.shutdownGracefully();
@@ -630,13 +673,14 @@ public void afterSingletonsInstantiated() {
             }
         }
     });
-    thread.setDaemon(true);
+    thread.setDaemon(true); // daemon, service jvm, user thread leave >>> daemon leave >>> jvm leave
     thread.start();
 }
 </code></pre>
-            <p><code>startRegistry(appname, address);</code> 方法实际上调用的是 xxl-job-admin 模块的 <code>com.xxl.job.admin.controller.JobApiController#api</code> 方法。</p>
-            <h6 id="source-receive-registration">1. 调度中心接受注册信息</h6>
-            <pre class="java"><code>@Override
+                    <p><code>startRegistry(appname, address);</code> 方法实际上调用的是 xxl-job-admin 模块的 <code>com.xxl.job.admin.controller.JobApiController#api</code> 方法。</p>
+                    <ol>
+                        <li><strong>调度中心接受注册信息</strong>
+                            <pre class="java"><code>@Override
 public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
     // valid
     if (!StringUtils.hasText(registryParam.getRegistryGroup())
@@ -649,27 +693,33 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
     int ret = xxlJobRegistryDao.registryUpdate(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
     if (ret < 1) {
         xxlJobRegistryDao.registrySave(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
+
+        // 这里是一个空方法，什么都没做，可能是版本的原因
         freshGroupRegistryInfo(registryParam);
     }
     return ReturnT.SUCCESS;
 }
 </code></pre>
-            <h5 id="source-heartbeat-mechanism">iii. 心跳机制</h5>
-            <p>再次看一看任务注册方法</p>
-            <pre class="java"><code>public void startRegistry(final String appname, final String address) {
+                        </li>
+                    </ol>
+                </li>
+                <li><strong>心跳机制</strong>
+                    <p>再次看一看任务注册方法</p>
+                    <pre class="java"><code>public void startRegistry(final String appname, final String address) {
+    // start registry
     ExecutorRegistryThread.getInstance().start(appname, address);
 }
 </code></pre>
-            <p>主要负责注册和注销执行器（Executor）到 XXL-JOB 调度中心。</p>
-            <p>当 <code>toStop</code> 不为 <code>true</code> 的时候，每隔 30 秒定时往 xxl-job 调度中心进行注册。xxl-job 接受注册的方法是直接更新，当更新数小于 0 时才是新增，这样有效的避免了大量的查询。</p>
-            <pre class="java"><code>public void start(final String appname, final String address){
+                    <p>主要负责注册和注销执行器（Executor）到 XXL-JOB 调度中心。</p>
+                    <p>当 <code>toStop</code> 不为 <code>true</code> 的时候，每隔 30 秒定时往 xxl-job 调度中心进行注册。xxl-job 接受注册的方法是直接更新，当更新数小于 0 时才是新增，这样有效的避免了大量的查询。</p>
+                    <pre class="java"><code>public void start(final String appname, final String address) {
     // valid
-    if (appname==null || appname.trim().length()==0) {
-        logger.warn(<span class="string">"xxxxxxxxx xxl-job, executor registry config fail, appname is null."</span>);
+    if (appname == null || appname.trim().length() == 0) {
+        logger.warn(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor registry config fail, appname is null."</span>);
         return;
     }
     if (XxlJobExecutor.getAdminBizList() == null) {
-        logger.warn(<span class="string">"xxxxxxxxx xxl-job, executor registry config fail, adminAddresses is null."</span>);
+        logger.warn(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor registry config fail, adminAddresses is null."</span>);
         return;
     }
 
@@ -680,18 +730,20 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
             while (!toStop) {
                 try {
                     RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appname, address);
-                    for (AdminBiz adminBiz: XxlJobExecutor.getAdminBizList()) {
+                    // 遍历管理员业务列表 XxlJobExecutor.getAdminBizList()，对每个 AdminBiz 实例尝试执行注册操作。
+                    // 如果配置了多个 ip，则会往多个调度中心发送注册信息
+                    for (AdminBiz adminBiz : XxlJobExecutor.getAdminBizList()) {
                         try {
                             ReturnT&lt;String&gt; registryResult = adminBiz.registry(registryParam);
-                            if (registryResult!=null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
+                            if (registryResult != null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
                                 registryResult = ReturnT.SUCCESS;
-                                logger.debug(<span class="string">"xxxxxxxxx xxl-job registry success, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
+                                logger.debug(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry success, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
                                 break;
                             } else {
-                                logger.info(<span class="string">"xxxxxxxxx xxl-job registry fail, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
+                                logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry fail, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
                             }
                         } catch (Exception e) {
-                            logger.info(<span class="string">"xxxxxxxxx xxl-job registry error, registryParam:{}"</span>, registryParam, e);
+                            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry error, registryParam:{}"</span>, registryParam, e);
                         }
                     }
                 } catch (Exception e) {
@@ -706,7 +758,7 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
                     }
                 } catch (InterruptedException e) {
                     if (!toStop) {
-                        logger.warn(<span class="string">"xxxxxxxxx xxl-job, executor registry thread interrupted, error msg:{}"</span>, e.getMessage());
+                        logger.warn(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor registry thread interrupted, error msg:{}"</span>, e.getMessage());
                     }
                 }
             }
@@ -714,21 +766,19 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
             // registry remove
             try {
                 RegistryParam registryParam = new RegistryParam(RegistryConfig.RegistType.EXECUTOR.name(), appname, address);
-                for (AdminBiz adminBiz: XxlJobExecutor.getAdminBizList()) {
+                for (AdminBiz adminBiz : XxlJobExecutor.getAdminBizList()) {
                     try {
                         ReturnT&lt;String&gt; registryResult = adminBiz.registryRemove(registryParam);
-                        if (registryResult!=null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
+                        if (registryResult != null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
                             registryResult = ReturnT.SUCCESS;
-                            logger.info(<span class="string">"xxxxxxxxx xxl-job registry-remove success, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
+                            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry-remove success, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
                             break;
                         } else {
-                            logger.info(<span class="string">"xxxxxxxxx xxl-job registry-remove fail, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
+                            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry-remove fail, registryParam:{}, registryResult:{}"</span>, new Object[]{registryParam, registryResult});
                         }
                     } catch (Exception e) {
                         if (!toStop) {
-                            logger.info(<span class="string">"xxxxxxxxx xxl-job
-
- registry-remove error, registryParam:{}"</span>, registryParam, e);
+                            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job registry-remove error, registryParam:{}"</span>, registryParam, e);
                         }
                     }
                 }
@@ -737,7 +787,7 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
                     logger.error(e.getMessage(), e);
                 }
             }
-            logger.info(<span class="string">"xxxxxxxxx xxl-job, executor registry thread destory."</span>);
+            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, executor registry thread destroy."</span>);
         }
     });
     registryThread.setDaemon(true);
@@ -745,25 +795,30 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
     registryThread.start();
 }
 </code></pre>
-            <h6 id="source-heartbeat-management">1. 调度中心的心跳管理</h6>
-            <p>调度中心通过 <code>com.xxl.job.admin.core.thread.JobRegistryMonitorHelper</code> 类，周期性的对心跳进行检测。</p>
-            <pre class="java"><code>public void start(){
+                    <ol>
+                        <li><strong>调度中心的心跳管理</strong>
+                            <p>调度中心通过 <code>com.xxl.job.admin.core.thread.JobRegistryMonitorHelper</code> 类，周期性的对心跳进行检测。</p>
+                            <pre class="java"><code>public void start() {
     registryThread = new Thread(new Runnable() {
         @Override
         public void run() {
             while (!toStop) {
                 try {
+                    // 获取地址类型为 0 的任务组列表（自动注册任务组列表）
                     List&lt;XxlJobGroup&gt; groupList = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().findByAddressType(0);
-                    if (groupList!=null && !groupList.isEmpty()) {
+                    if (groupList != null && !groupList.isEmpty()) {
+                        // 查找超时 3*30 秒未更新的注册信息，并移除这些死亡的地址。
                         List&lt;Integer&gt; ids = XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().findDead(RegistryConfig.DEAD_TIMEOUT, new Date());
-                        if (ids!=null && ids.size()>0) {
+                        if (ids != null && ids.size() > 0) {
                             XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().removeDead(ids);
                         }
 
+                        // 创建一个映射表 appAddressMap 来存储每个应用名称对应的注册地址列表。
                         HashMap&lt;String, List&lt;String&gt;&gt; appAddressMap = new HashMap&lt;String, List&lt;String&gt;&gt;();
+                        // 查找所有未超时的注册信息，并更新映射表。
                         List&lt;XxlJobRegistry&gt; list = XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().findAll(RegistryConfig.DEAD_TIMEOUT, new Date());
                         if (list != null) {
-                            for (XxlJobRegistry item: list) {
+                            for (XxlJobRegistry item : list) {
                                 if (RegistryConfig.RegistType.EXECUTOR.name().equals(item.getRegistryGroup())) {
                                     String appname = item.getRegistryKey();
                                     List&lt;String&gt; registryList = appAddressMap.get(appname);
@@ -779,16 +834,17 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
                             }
                         }
 
-                        for (XxlJobGroup group: groupList) {
+                        // 更新任务组地址列表
+                        for (XxlJobGroup group : groupList) {
                             List&lt;String&gt; registryList = appAddressMap.get(group.getAppname());
                             String addressListStr = null;
-                            if (registryList!=null && !registryList.isEmpty()) {
+                            if (registryList != null && !registryList.isEmpty()) {
                                 Collections.sort(registryList);
-                                addressListStr = <span class="string">""</span>;
-                                for (String item:registryList) {
-                                    addressListStr += item + <span class="string">","</span>;
+                                addressListStr = "";
+                                for (String item : registryList) {
+                                    addressListStr += item + ",";
                                 }
-                                addressListStr = addressListStr.substring(0, addressListStr.length()-1);
+                                addressListStr = addressListStr.substring(0, addressListStr.length() - 1);
                             }
                             group.setAddressList(addressListStr);
                             XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().update(group);
@@ -796,18 +852,18 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
                     }
                 } catch (Exception e) {
                     if (!toStop) {
-                        logger.error(<span class="string">"xxxxxxxxx xxl-job, job registry monitor thread error:{}"</span>, e);
+                        logger.error(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, job registry monitor thread error:{}"</span>, e);
                     }
                 }
                 try {
                     TimeUnit.SECONDS.sleep(RegistryConfig.BEAT_TIMEOUT);
                 } catch (InterruptedException e) {
                     if (!toStop) {
-                        logger.error(<span class="string">"xxxxxxxxx xxl-job, job registry monitor thread error:{}"</span>, e);
+                        logger.error(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, job registry monitor thread error:{}"</span>, e);
                     }
                 }
             }
-            logger.info(<span class="string">"xxxxxxxxx xxl-job, job registry monitor thread stop"</span>);
+            logger.info(<span class="string">"&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; xxl-job, job registry monitor thread stop"</span>);
         }
     });
     registryThread.setDaemon(true);
@@ -815,462 +871,14 @@ public ReturnT&lt;String&gt; registry(RegistryParam registryParam) {
     registryThread.start();
 }
 </code></pre>
-            <p>xxl-job 运用了大量的线程、守护线程和 Netty</p>
-
-            <h3 id="source-scheduling">2. 任务调度</h3>
-            <h4 id="source-scheduling-overview">a. 整体调度流程概述</h4>
-            <p>XXL-JOB 的调度主要分为调度中心和执行器两部分。调度中心负责任务的管理、调度触发；执行器负责接收调度中心的任务请求并执行具体的任务。整体流程如下：</p>
-            <ol>
-                <li>调度中心根据任务的配置（如 Cron 表达式）计算任务的下次执行时间。</li>
-                <li>到达任务执行时间时，调度中心向对应的执行器发送调度请求。</li>
-                <li>执行器接收到调度请求后，执行具体的任务逻辑。</li>
-                <li>执行器将任务执行结果反馈给调度中心。</li>
+                        </li>
+                    </ol>
+                </li>
             </ol>
-            <h4 id="source-scheduling-analysis">b. 源码分析</h4>
-            <h5 id="source-scheduling-center">i. 调度中心的任务调度</h5>
-            <p>在调度中心启动时，会初始化任务调度相关的组件，初始化组件是在 <code>XxlJobScheduler</code> 类中的 <code>init()</code> 方法。而任务调度主要在 <code>JobScheduleHelper</code> 类的 <code>start</code> 方法中完成：</p>
-            <p><em>方法逻辑：主要是负责启动两个线程：scheduleThread 和 ringThread，用于处理定时任务的调度和触发</em></p>
-            <p><em>这里去掉了部分代码，只保留主要逻辑</em></p>
-            <pre class="java"><code>public void start() {
-    // schedule thread
-    scheduleThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            int preReadCount = (XxlJobAdminConfig.getAdminConfig().getTriggerPoolFastMax() + XxlJobAdminConfig.getAdminConfig().getTriggerPoolSlowMax()) * 20;
-            while (!scheduleThreadToStop) {
-                Connection conn = null;
-                Boolean connAutoCommit = null;
-                PreparedStatement preparedStatement = null;
-                boolean preReadSuc = true;
-                try {
-                    conn = XxlJobAdminConfig.getAdminConfig().getDataSource().getConnection();
-                    connAutoCommit = conn.getAutoCommit();
-                    conn.setAutoCommit(false);
-                    preparedStatement = conn.prepareStatement(<span class="string">"select * from xxl_job_lock where lock_name = 'schedule_lock' for update"</span>);
-                    preparedStatement.execute();
+            <p>xxl-job 运用了大量的线程、守护线程和 netty</p>
 
-                    long nowTime = System.currentTimeMillis();
-                    List&lt;XxlJobInfo&gt; scheduleList = XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().scheduleJobQuery(nowTime + PRE_READ_MS, preReadCount);
-                    if (scheduleList != null && scheduleList.size() > 0) {
-                        for (XxlJobInfo jobInfo : scheduleList) {
-                            if (nowTime > jobInfo.getTriggerNextTime() + PRE_READ_MS) {
-                                refreshNextValidTime(jobInfo, new Date());
-                            } else if (nowTime > jobInfo.getTriggerNextTime()) {
-                                JobTriggerPoolHelper.trigger(jobInfo.getId(), TriggerTypeEnum.CRON, -1, null, null, null);
-                                refreshNextValidTime(jobInfo, new Date());
-                                if (jobInfo.getTriggerStatus() == 1 && nowTime + PRE_READ_MS > jobInfo.getTriggerNextTime()) {
-                                    int ringSecond = (int) ((jobInfo.getTriggerNextTime() / 1000) % 60);
-                                    pushTimeRing(ringSecond, jobInfo.getId());
-                                    refreshNextValidTime(jobInfo, new Date(jobInfo.getTriggerNextTime()));
-                                }
-                            } else {
-                                int ringSecond = (int) ((jobInfo.getTriggerNextTime() / 1000) % 60);
-                                pushTimeRing(ringSecond, jobInfo.getId());
-                                refreshNextValidTime(jobInfo, new Date(jobInfo.getTriggerNextTime()));
-                            }
-                        }
-                        for (XxlJobInfo jobInfo : scheduleList) {
-                            XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().scheduleUpdate(jobInfo);
-                        }
-                    } else {
-                        preReadSuc = false;
-                    }
-                } catch (Exception e) {
-                    if (!scheduleThreadToStop) {
-                        logger.error(<span class="string">"xxxxxxxxx xxl-job, JobScheduleHelper#scheduleThread error:{}"</span>, e);
-                    }
-                } finally {
-                    // commit
-                }
-            }
-        }
-    });
-    scheduleThread.setDaemon(true);
-    scheduleThread.setName(<span class="string">"xxl-job, admin JobScheduleHelper#scheduleThread"</span>);
-    scheduleThread.start();
-
-    // ring thread
-    ringThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            while (!ringThreadToStop) {
-                try {
-                    List&lt;Integer&gt; ringItemData = new ArrayList&lt;&gt;();
-                    int nowSecond = Calendar.getInstance().get(Calendar.SECOND);
-                    for (int i = 0; i < 2; i++) {
-                        List&lt;Integer&gt; tmpData = ringData.remove((nowSecond + 60 - i) % 60);
-                        if (tmpData != null) {
-                            ringItemData.addAll(tmpData);
-                        }
-                    }
-                    if (ringItemData.size() > 0) {
-                        for (int jobId : ringItemData) {
-                            JobTriggerPoolHelper.trigger(jobId, TriggerTypeEnum.CRON, -1, null, null, null);
-                        }
-                        ringItemData.clear();
-                    }
-                } catch (Exception e) {
-                    if (!ringThreadToStop) {
-                        logger.error(<span class="string">"xxxxxxxxx xxl-job, JobScheduleHelper#ringThread error:{}"</span>, e);
-                    }
-                }
-                try {
-                    TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis() % 1000);
-                } catch (InterruptedException e) {
-                    if (!ringThreadToStop) {
-                        logger.error(e.getMessage(), e);
-                    }
-                }
-            }
-            logger.info(<span class="string">"xxxxxxxxx xxl-job, JobScheduleHelper#ringThread stop"</span>);
-        }
-    });
-    ringThread.setDaemon(true);
-    ringThread.setName(<span class="string">"xxl-job, admin JobScheduleHelper#ringThread"</span>);
-    ringThread.start();
-}
-
-private void refreshNextValidTime(XxlJobInfo jobInfo, Date fromTime) throws ParseException {
-    Date nextValidTime = new CronExpression(jobInfo.getJobCron()).getNextValidTimeAfter(fromTime);
-    if (nextValidTime != null) {
-        jobInfo.setTriggerLastTime(jobInfo.getTriggerNextTime());
-        jobInfo.setTriggerNextTime(nextValidTime.getTime());
-    } else {
-        jobInfo.setTriggerStatus(0);
-        jobInfo.setTriggerLastTime(0);
-        jobInfo.setTriggerNextTime(0);
-    }
-}
-</code></pre>
-            <h6 id="source-trigger-task">1. 触发任务</h6>
-            <p>这段代码的主要功能是触发一个定时任务，并根据任务的执行情况选择不同的线程池来执行任务，同时监控任务的超时情况。以下是对代码段的详细解释</p>
-            <pre class="java"><code>public static void trigger(int jobId, TriggerTypeEnum triggerType, int failRetryCount, String executorShardingParam, String executorParam, String addressList) {
-    helper.addTrigger(jobId, triggerType, failRetryCount, executorShardingParam, executorParam, addressList);
-}
-
-public void addTrigger(final int jobId,
-                       final TriggerTypeEnum triggerType,
-                       final int failRetryCount,
-                       final String executorShardingParam,
-                       final String executorParam,
-                       final String addressList) {
-    ThreadPoolExecutor triggerPool_ = fastTriggerPool;
-    AtomicInteger jobTimeoutCount = jobTimeoutCountMap.get(jobId);
-    if (jobTimeoutCount != null && jobTimeoutCount.get() > 10) {
-        triggerPool_ = slowTriggerPool;
-    }
-
-    triggerPool_.execute(new Runnable() {
-        @Override
-        public void run() {
-            long start = System.currentTimeMillis();
-            try {
-                XxlJobTrigger.trigger(jobId, triggerType, failRetryCount, executorShardingParam, executorParam, addressList);
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            } finally {
-                long minTim_now = System.currentTimeMillis() / 60000;
-                if (minTim != minTim_now) {
-                    minTim = minTim_now;
-                    jobTimeoutCountMap.clear();
-                }
-                long cost = System.currentTimeMillis() - start;
-                if (cost > 500) {
-                    AtomicInteger timeoutCount = jobTimeoutCountMap.putIfAbsent(jobId, new AtomicInteger(1));
-                    if (timeoutCount != null) {
-                        timeoutCount.incrementAndGet();
-                    }
-                }
-            }
-        }
-    });
-}
-</code></pre>
-            <p>其中 <code>XxlJobTrigger.trigger</code> 方法的源码解析如下：</p>
-            <pre class="java"><code>public static void trigger(int jobId,
-                               TriggerTypeEnum triggerType,
-                               int failRetryCount,
-                               String executorShardingParam,
-                               String executorParam,
-                               String addressList) {
-    XxlJobInfo jobInfo = XxlJobAdminConfig.getAdminConfig().getXxlJobInfoDao().loadById(jobId);
-    if (jobInfo == null) {
-        logger.warn(<span class="string">"xxxxxxxxx trigger fail, jobId invalid，jobId={}"</span>, jobId);
-        return;
-    }
-    if (executorParam != null) {
-        jobInfo.setExecutorParam(executorParam);
-    }
-    int finalFailRetryCount = failRetryCount >= 0 ? failRetryCount : jobInfo.getExecutorFailRetryCount();
-    XxlJobGroup group = XxlJobAdminConfig.getAdminConfig().getXxlJobGroupDao().load(jobInfo.getJobGroup());
-
-    if (addressList != null && addressList.trim().length() > 0) {
-        group.setAddressType(1);
-        group.setAddressList(addressList.trim());
-    }
-
-    int[] shardingParam = null;
-    if (executorShardingParam != null) {
-        String[] shardingArr = executorShardingParam.split(<span class="string">"/"</span>);
-        if (shardingArr.length == 2 && isNumeric(shardingArr[0]) && isNumeric(shardingArr[1])) {
-            shardingParam = new int[2];
-            shardingParam[0] = Integer.valueOf(shardingArr[0]);
-            shardingParam[1] = Integer.valueOf(shardingArr[1]);
-        }
-    }
-    if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
-            && group.getRegistryList() != null && !group.getRegistryList().isEmpty()
-            && shardingParam == null) {
-        for (int i = 0; i < group.getRegistryList().size(); i++) {
-            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, i, group.getRegistryList().size());
-        }
-    } else {
-        if (shardingParam == null) {
-            shardingParam = new int[]{0, 1};
-        }
-        processTrigger(group, jobInfo, finalFailRetryCount, triggerType, shardingParam[0], shardingParam[1]);
-    }
-}
-</code></pre>
-            <h5 id="source-client-execution">ii. 客户端接收并执行任务</h5>
-            <p>根据我们在任务注册与心跳的章节中，介绍了 <code>EmbedServer</code>，这个类主要功能是启动一个嵌入式 HTTP 服务器，监听特定端口，处理 HTTP 请求，并将请求分发给业务逻辑线程池处理。同时，它还包含了服务器启动和关闭的相关逻辑。内部类 <code>EmbedHttpServerHandler</code> 继承了 <code>SimpleChannelInboundHandler</code> 抽象类，并重写了 <code>channelRead0</code> 方法。当通道接收到一个消息时，Netty 会自动调用该方法，并将接收到的消息传递给该方法。</p>
-            <p>通过实现 <code>channelRead0</code> 方法，可以专注于处理接收到的消息，而不需要手动调用 <code>ctx.fireChannelRead</code> 来传递消息到下一个处理器。Netty 会自动处理消息的传递，简化了代码逻辑。</p>
-            <p>在 <code>channelRead0</code> 方法执行完成后，Netty 会自动调用 <code>ReferenceCountUtil.release(msg)</code> 来释放接收到的消息的资源（如果消息是引用计数对象）。这减少了内存泄漏的风险。</p>
-            <p>因此我们来看看 xxl-job 实现的 <code>channelRead0</code> 方法。</p>
-            <pre class="java"><code>@Override
-protected void channelRead0(final ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-    String requestData = msg.content().toString(CharsetUtil.UTF_8);
-    String uri = msg.uri();
-    HttpMethod httpMethod = msg.method();
-    boolean keepAlive = HttpUtil.isKeepAlive(msg);
-    String accessTokenReq = msg.headers().get(XxlJobRemotingUtil.XXL_JOB_ACCESS_TOKEN);
-
-    bizThreadPool.execute(new Runnable() {
-        @Override
-        public void run() {
-            Object responseObj = process(httpMethod, uri, requestData, accessTokenReq);
-            String responseJson = GsonTool.toJson(responseObj);
-            writeResponse(ctx, keepAlive, responseJson);
-        }
-    });
-}
-
-private Object process(HttpMethod httpMethod, String uri, String requestData, String accessTokenReq) {
-    if (HttpMethod.POST != httpMethod) {
-        return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"invalid request, HttpMethod not support."</span>);
-    }
-    if (uri==null || uri.trim().length()==0) {
-        return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"invalid request, uri-mapping empty."</span>);
-    }
-    if (accessToken!=null
-            && accessToken.trim().length()>0
-            && !accessToken.equals(accessTokenReq)) {
-        return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"The access token is wrong."</span>);
-    }
-
-    try {
-        if (<span class="string">"/beat"</span>.equals(uri)) {
-            return executorBiz.beat();
-        } else if (<span class="string">"/idleBeat"</span>.equals(uri)) {
-            IdleBeatParam idleBeatParam = GsonTool.fromJson(requestData, IdleBeatParam.class);
-            return executorBiz.idleBeat(idleBeatParam);
-        } else if (<span class="string">"/run"</span>.equals(uri)) {
-            TriggerParam triggerParam = GsonTool.fromJson(requestData, TriggerParam.class);
-            return executorBiz.run(triggerParam);
-        } else if (<span class="string">"/kill"</span>.equals(uri)) {
-            KillParam killParam = GsonTool.fromJson(requestData, KillParam.class);
-            return executorBiz.kill(killParam);
-        } else if (<span class="string">"/log"</span>.equals(uri)) {
-            LogParam logParam = GsonTool.fromJson(requestData, LogParam.class);
-            return executorBiz.log(logParam);
-        } else {
-            return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"invalid request, uri-mapping(" + uri + ") not found."</span>);
-        }
-    } catch (Exception e) {
-        logger.error(e.getMessage(), e);
-        return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"request error:" + ThrowableUtil.toString(e)</span>);
-    }
-}
-</code></pre>
-            <p>任务调度的方法：<code>com.xxl.job.core.biz.impl.ExecutorBizImpl#run</code></p>
-            <pre class="java"><code>@Override
-public ReturnT&lt;String&gt; run(TriggerParam triggerParam) {
-    JobThread jobThread = XxlJobExecutor.loadJobThread(triggerParam.getJobId());
-    IJobHandler jobHandler = jobThread!=null?jobThread.getHandler():null;
-    String removeOldReason = null;
-
-    GlueTypeEnum glueTypeEnum = GlueTypeEnum.match(triggerParam.getGlueType());
-    if (GlueTypeEnum.BEAN == glueTypeEnum) {
-        IJobHandler newJobHandler = XxlJobExecutor.loadJobHandler(triggerParam.getExecutorHandler());
-        if (jobThread!=null && jobHandler != newJobHandler) {
-            removeOldReason = <span class="string">"change jobhandler or glue type, and terminate the old job thread."</span>;
-            jobThread = null;
-            jobHandler = null;
-        }
-        if (jobHandler == null) {
-            jobHandler = newJobHandler;
-            if (jobHandler == null) {
-                return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"job handler [" + triggerParam.getExecutorHandler() + "] not found."</span>);
-            }
-        }
-    } else if (GlueTypeEnum.GLUE_GROOVY == glueTypeEnum) {
-        if (jobThread != null &&
-                !(jobThread.getHandler() instanceof GlueJobHandler
-                    && ((GlueJobHandler) jobThread.getHandler()).getGlueUpdatetime()==triggerParam.getGlueUpdatetime() )) {
-            removeOldReason = <span class="string">"change job source or glue type, and terminate the old job thread."</span>;
-            jobThread = null;
-            jobHandler = null;
-        }
-        if (jobHandler == null) {
-            try {
-                IJobHandler originJobHandler = GlueFactory.getInstance().loadNewInstance(triggerParam.getGlueSource());
-                jobHandler = new GlueJobHandler(originJobHandler, triggerParam.getGlueUpdatetime());
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, e.getMessage());
-            }
-        }
-    } else if (glueTypeEnum!=null && glueTypeEnum.isScript()) {
-        if (jobThread != null &&
-                !(jobThread.getHandler() instanceof ScriptJobHandler
-                        && ((ScriptJobHandler) jobThread.getHandler()).getGlueUpdatetime()==triggerParam.getGlueUpdatetime() )) {
-            removeOldReason = <span class="string">"change job source or glue type, and terminate the old job thread."</span>;
-            jobThread = null;
-            jobHandler = null;
-        }
-        if (jobHandler == null) {
-            jobHandler = new ScriptJobHandler(triggerParam.getJobId(), triggerParam.getGlueUpdatetime(), triggerParam.getGlueSource(), GlueTypeEnum.match(triggerParam.getGlueType()));
-        }
-    } else {
-        return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"glueType[" + triggerParam.getGlueType() + "] is not valid."</span>);
-    }
-
-    if (jobThread != null) {
-        ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy(), null);
-        if (ExecutorBlockStrategyEnum.DISCARD_LATER == blockStrategy) {
-            if (jobThread.isRunningOrHasQueue()) {
-                return new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, <span class="string">"block strategy effect："+ExecutorBlockStrategyEnum.DISCARD_LATER.getTitle()</span>);
-            }
-        } else if (ExecutorBlockStrategyEnum.COVER_EARLY == blockStrategy) {
-            if (jobThread.isRunningOrHasQueue()) {
-                removeOldReason = <span class="string">"block strategy effect：" + ExecutorBlockStrategyEnum.COVER_EARLY.getTitle()</span>;
-                jobThread = null;
-            }
-        } else {
-            // just queue trigger
-        }
-    }
-
-    if (jobThread == null) {
-        jobThread = XxlJobExecutor.registJobThread(triggerParam.getJobId(), jobHandler, removeOldReason);
-    }
-
-    ReturnT&lt;String&gt; pushResult = jobThread.pushTriggerQueue(triggerParam);
-    return pushResult;
-}
-</code></pre>
-            <p>最后 <code>jobThread</code> 开始执行</p>
-            <p>主要负责处理定时任务的执行</p>
-            <pre class="java"><code>@Override
-public void run() {
-    try {
-        handler.init();
-    } catch (Throwable e) {
-        logger.error(e.getMessage(), e);
-    }
-
-    while(!toStop){
-        running = false;
-        idleTimes++;
-        TriggerParam triggerParam = null;
-        ReturnT&lt;String&gt; executeResult = null;
-        try {
-            triggerParam = triggerQueue.poll(3L, TimeUnit.SECONDS);
-            if (triggerParam!=null) {
-                running = true;
-                idleTimes = 0;
-                triggerLogIdSet.remove(triggerParam.getLogId());
-                String logFileName = XxlJobFileAppender.makeLogFileName(new Date(triggerParam.getLogDateTime()), triggerParam.getLogId());
-                XxlJobFileAppender.contextHolder.set(logFileName);
-                ShardingUtil.setShardingVo(new ShardingUtil.ShardingVO(triggerParam.getBroadcastIndex(), triggerParam.getBroadcastTotal()));
-                XxlJobLogger.log(<span class="string">"&lt;br&gt;----------- xxl-job job execute start -----------&lt;br&gt;----------- Param:" + triggerParam.getExecutorParams()</span>);
-                if (triggerParam.getExecutorTimeout() > 0) {
-                    Thread futureThread = null;
-                    try {
-                        final TriggerParam triggerParamTmp = triggerParam;
-                        FutureTask&lt;ReturnT&lt;String&gt;&gt; futureTask = new FutureTask&lt;ReturnT&lt;String&gt;&gt;(new Callable&lt;ReturnT&lt;String&gt;&gt;() {
-                            @Override
-                            public ReturnT&lt;String&gt; call() throws Exception {
-                                return handler.execute(triggerParamTmp.getExecutorParams());
-                            }
-                        });
-                        futureThread = new Thread(futureTask);
-                        futureThread.start();
-                        executeResult = futureTask.get(triggerParam.getExecutorTimeout(), TimeUnit.SECONDS);
-                    } catch (TimeoutException e) {
-                        XxlJobLogger.log(<span class="string">"&lt;br&gt;----------- xxl-job job execute timeout"</span>);
-                        XxlJobLogger.log(e);
-                        executeResult = new ReturnT&lt;String&gt;(IJobHandler.FAIL_TIMEOUT.getCode(), <span class="string">"job execute timeout "</span>);
-                    } finally {
-                        futureThread.interrupt();
-                    }
-                } else {
-                    executeResult = handler.execute(triggerParam.getExecutorParams());
-                }
-                if (executeResult == null) {
-                    executeResult = IJobHandler.FAIL;
-                } else {
-                    executeResult.setMsg(
-                            (executeResult!=null&&executeResult.getMsg()!=null&&executeResult.getMsg().length()>50000)
-                                    ?executeResult.getMsg().substring(0, 50000).concat(<span class="string">"..."</span>)
-                                    :executeResult.getMsg());
-                    executeResult.setContent(null);
-                }
-                XxlJobLogger.log(<span class="string">"&lt;br&gt;----------- xxl-job job execute end(finish) -----------&lt;br&gt;----------- ReturnT:" + executeResult</span>);
-            } else {
-                if (idleTimes > 30) {
-                    if(triggerQueue.size() == 0) {
-                        XxlJobExecutor.removeJobThread(jobId, <span class="string">"excutor idel times over limit."</span>);
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            if (toStop) {
-                XxlJobLogger.log(<span class="string">"&lt;br&gt;----------- JobThread toStop, stopReason:" + stopReason</span>);
-            }
-            StringWriter stringWriter = new StringWriter();
-            e.printStackTrace(new PrintWriter(stringWriter));
-            String errorMsg = stringWriter.toString();
-            executeResult = new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, errorMsg);
-            XxlJobLogger.log(<span class="string">"&lt;br&gt;----------- JobThread Exception:" + errorMsg + "&lt;br&gt;----------- xxl-job job execute end(error) -----------"</span>);
-        } finally {
-            if(triggerParam != null) {
-                if (!toStop) {
-                    TriggerCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), executeResult));
-                } else {
-                    ReturnT&lt;String&gt; stopResult = new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, stopReason + <span class="string">" [job running, killed]"</span>);
-                    TriggerCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
-                }
-            }
-        }
-    }
-
-    while(triggerQueue !=null && triggerQueue.size()>0){
-        TriggerParam triggerParam = triggerQueue.poll();
-        if (triggerParam!=null) {
-            ReturnT&lt;String&gt; stopResult = new ReturnT&lt;String&gt;(ReturnT.FAIL_CODE, stopReason + <span class="string">" [job not executed, in the job queue, killed.]"</span>);
-            TriggerCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
-        }
-    }
-
-    try {
-        handler.destroy();
-    } catch (Throwable e) {
-        logger.error(e.getMessage(), e);
-    }
-    logger.info(<span class="string">"xxxxxxxxx xxl-job JobThread stoped, hashCode:{}"</span>, Thread.currentThread());
-}
-</code></pre>
+            <h2 id="xxl-job-task-scheduling-source">XXL-JOB 任务调度源码分析</h2>
+            <p>详情见：<a href="20250411171835.html" target="_blank">XXL-JOB 任务调度源码分析</a> </p>
 
             <div class="article-tags">
                 <a href="#">XXL-JOB</a>
@@ -1286,60 +894,27 @@ public void run() {
             <ul>
                 <li><a href="#principle">原理</a>
                     <ul>
-                        <li><a href="#principle-modules">1. 主要模块</a></li>
-                        <li><a href="#principle-architecture">2. 架构设计</a></li>
-                        <li><a href="#principle-registration-heartbeat">3. 任务注册与心跳机制</a>
-                            <ul>
-                                <li><a href="#principle-registration">a. 任务注册</a></li>
-                                <li><a href="#principle-heartbeat">b. 心跳机制</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="#principle-scheduling">4. 任务调度流程</a></li>
-                        <li><a href="#principle-dynamic-management">5. 任务的动态管理</a></li>
-                        <li><a href="#principle-ha-scalability">6. 高可用性与扩展性</a></li>
-                        <li><a href="#principle-execution-modes">7. 任务执行模式</a></li>
-                        <li><a href="#principle-summary">8. 总结</a></li>
+                        <li><a href="#main-modules">1. 主要模块</a></li>
+                        <li><a href="#architecture-design">2. 架构设计</a></li>
+                        <li><a href="#task-registration-heartbeat">3. 任务注册与心跳机制</a></li>
+                        <li><a href="#task-scheduling-process">4. 任务调度流程</a></li>
+                        <li><a href="#dynamic-task-management">5. 任务的动态管理</a></li>
+                        <li><a href="#high-availability-scalability">6. 高可用性与扩展性</a></li>
+                        <li><a href="#task-execution-modes">7. 任务执行模式</a></li>
+                        <li><a href="#summary">8. 总结</a></li>
                     </ul>
                 </li>
-                <li><a href="#source-analysis">源码分析</a>
+                <li><a href="#source-code-analysis">源码分析</a>
                     <ul>
-                        <li><a href="#source-registration-heartbeat">1. 任务注册与心跳</a>
+                        <li><a href="#task-registration-heartbeat-source">1. 任务注册与心跳</a>
                             <ul>
-                                <li><a href="#source-annotation-scanning">a. 注解扫描与注册</a></li>
-                                <li><a href="#source-initialize-tasks">b. 初始化任务</a>
-                                    <ul>
-                                        <li><a href="#source-callback-thread">i. 回调线程</a></li>
-                                        <li><a href="#source-task-registration">ii. 任务注册</a>
-                                            <ul>
-                                                <li><a href="#source-receive-registration">1. 调度中心接受注册信息</a></li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="#source-heartbeat-mechanism">iii. 心跳机制</a>
-                                            <ul>
-                                                <li><a href="#source-heartbeat-management">1. 调度中心的心跳管理</a></li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                        <li><a href="#source-scheduling">2. 任务调度</a>
-                            <ul>
-                                <li><a href="#source-scheduling-overview">a. 整体调度流程概述</a></li>
-                                <li><a href="#source-scheduling-analysis">b. 源码分析</a>
-                                    <ul>
-                                        <li><a href="#source-scheduling-center">i. 调度中心的任务调度</a>
-                                            <ul>
-                                                <li><a href="#source-trigger-task">1. 触发任务</a></li>
-                                            </ul>
-                                        </li>
-                                        <li><a href="#source-client-execution">ii. 客户端接收并执行任务</a></li>
-                                    </ul>
-                                </li>
+                                <li><a href="#annotation-scanning-registration">a. 注解扫描与注册</a></li>
+                                <li><a href="#task-initialization">b. 初始化任务</a></li>
                             </ul>
                         </li>
                     </ul>
                 </li>
+                <li><a href="#xxl-job-task-scheduling-source">XXL-JOB 任务调度源码分析</a></li>
             </ul>
         </section>
         <section class="section tags">
@@ -1367,7 +942,7 @@ public void run() {
         <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
         <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&nbsp;protected]</a> | <a href="#">服务条款</a></p>
     <p>© 2025 Java技术站 版权所有</p>
 </footer>
 </body>
