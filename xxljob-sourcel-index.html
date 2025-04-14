@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java技术站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'PingFang SC', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #F7F9FC;
+            color: #333;
+            line-height: 1.6;
+        }
+        /* 顶部 */
+        .top-bar {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: white;
+        }
+        /* 导航 */
+        nav {
+            background-color: #FFFFFF;
+            padding: 15px 0;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+        nav li {
+            position: relative;
+            margin: 0 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #4A90E2;
+            font-weight: bold;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #F5A623;
+        }
+        nav i {
+            margin-right: 8px;
+        }
+        nav .dropdown {
+            display: none;
+            position: absolute;
+            background-color: #FFFFFF;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 150px;
+            top: 100%;
+            left: 0;
+            border-radius: 8px;
+        }
+        nav li:hover .dropdown {
+            display: block;
+        }
+        nav .dropdown a {
+            padding: 10px;
+            color: #4A90E2;
+            font-weight: normal;
+        }
+        nav .dropdown a:hover {
+            background-color: #E9F1FF;
+            color: #F5A623;
+        }
+        /* 内容区 */
+        .container {
+            max-width: 1500px; /* 宽度从1300px增至1500px */
+            margin: 120px auto 20px;
+            display: flex;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        main {
+            flex: 2; /* main随容器宽度自适应扩展 */
+        }
+        aside {
+            width: 350px; /* aside固定宽度350px */
+            flex-shrink: 0; /* 防止宽度压缩 */
+        }
+        .section {
+            background-color: #FFFFFF;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 40px;
+        }
+        .section h2 {
+            color: #4A90E2;
+            font-size: 2em;
+            margin: 0 0 20px;
+            display: flex;
+            align-items: center;
+        }
+        .section h2 i {
+            margin-right: 10px;
+        }
+        /* 文章 */
+        .article {
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #F9FBFF;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        .article:hover {
+            background-color: #E9F1FF;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .article h3 {
+            margin: 0 0 10px;
+            font-size: 1.6em;
+        }
+        .article a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+        .article a:hover {
+            color: #F5A623;
+        }
+        .article-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin: 5px 0;
+        }
+        .article-tags a {
+            display: inline-block;
+            padding: 5px 10px;
+            margin-right: 5px;
+            background-color: #E9F1FF;
+            color: #4A90E2;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.85em;
+        }
+        .article-share a {
+            color: #7B68EE;
+            margin-right: 10px;
+            transition: color 0.3s;
+        }
+        .article-share a:hover {
+            color: #F5A623;
+        }
+        /* 侧边栏 */
+        aside .section {
+            padding: 20px;
+        }
+        aside ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        aside li {
+            margin: 10px 0;
+        }
+        aside a {
+            color: #4A90E2;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        aside a:hover {
+            color: #F5A623;
+        }
+        /* 页脚 */
+        footer {
+            background: linear-gradient(135deg, #7B68EE, #4A90E2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+            margin-top: 20px;
+        }
+        footer .social a {
+            color: #F5A623;
+            margin: 0 10px;
+            font-size: 1.5em;
+            transition: color 0.3s;
+        }
+        footer .social a:hover {
+            color: #FF7F50;
+        }
+    </style>
+</head>
+<body>
+<div class="top-bar">
+    <h1>Java技术站</h1>
+</div>
+<nav>
+    <ul>
+        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a>
+            <div class="dropdown">
+                <a href="#">Java 22新特性</a>
+                <a href="#">并发编程</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
+            <div class="dropdown">
+                <a href="springboot-index.html">Spring Boot</a>
+                <a href="#">Spring Security</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a>
+            <div class="dropdown">
+                <a href="mysql-index.html">Mysql</a>
+                <a href="#">JPA</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a>
+            <div class="dropdown">
+                <a href="#">Maven</a>
+                <a href="#">Gradle</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a>
+            <div class="dropdown">
+                <a href="#">Quarkus</a>
+                <a href="#">Spring Cloud</a>
+            </div>
+        </li>
+        <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
+            <div class="dropdown">
+                <a href="xxljob-sourcel-index.html">XXL-JOB</a>
+            </div>
+        </li>
+        <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a>
+            <div class="dropdown">
+                <a href="#">JUnit</a>
+                <a href="#">Mockito</a>
+            </div>
+        </li>
+    </ul>
+</nav>
+<div class="container">
+    <main>
+        <section class="section articles">
+            <h2><i class="fas fa-book-open"></i> 最新文章</h2>
+            <div class="article">
+                <h3><a href="c/20250411171835.html">XXL-JOB任务调度源码分析</a></h3>
+                <div class="article-meta">发布于：2025-04-11</div>
+                <p>通过源码分析xxl-job是如何进行任务调度的。</p>
+                <div class="article-tags">
+                    <a href="#">XXL-JOB</a>
+                    <a href="#">源码分析</a>
+                </div>
+                <div class="article-share">
+                    <a href="#"><i class="fas fa-share-alt"></i></a>
+                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                </div>
+            </div>
+            <div class="article">
+                <h3><a href="c/20250411161955.html">XXL-JOB原理及任务注册与心跳源码分析</a></h3>
+                <div class="article-meta">发布于：2025-04-11</div>
+                <p>xxl-job的原理，通过源码分析客户端是如何注册任务，以及心跳的机制。</p>
+                <div class="article-tags">
+                    <a href="#">XXL-JOB</a>
+                    <a href="#">源码分析</a>
+                </div>
+                <div class="article-share">
+                    <a href="#"><i class="fas fa-share-alt"></i></a>
+                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <aside>
+        <section class="section hot-posts">
+            <h2><i class="fas fa-fire"></i> 热门推荐</h2>
+            <ul>
+                <li><a href="#">Java并发编程入门</a></li>
+                <li><a href="#">Spring Cloud微服务架构</a></li>
+                <li><a href="#">Maven高级用法</a></li>
+            </ul>
+        </section>
+        <section class="section tags">
+            <h2><i class="fas fa-tags"></i> 热门标签</h2>
+            <div>
+                <a href="#" class="article-tags">Java</a>
+                <a href="#" class="article-tags">Spring</a>
+                <a href="#" class="article-tags">微服务</a>
+                <a href="#" class="article-tags">Hibernate</a>
+                <a href="#" class="article-tags">Maven</a>
+            </div>
+        </section>
+    </aside>
+</div>
+<footer>
+    <div class="social">
+        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
+    </div>
+    <p>联系方式： | <a href="#">服务条款</a></p>
+    <p>© 2025 Java技术站 版权所有</p>
+</footer>
+</body>
+</html>
