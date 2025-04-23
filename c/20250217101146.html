@@ -15,6 +15,7 @@
             color: #333;
             line-height: 1.6;
             overflow-x: hidden;
+            box-sizing: border-box;
         }
         .top-bar {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -43,6 +44,13 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 999;
             box-sizing: border-box;
+        }
+        nav .nav-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 10px 20px;
         }
         nav ul {
             list-style-type: none;
@@ -157,6 +165,7 @@
             word-break: break-word;
             max-width: 100%;
             box-sizing: border-box;
+            overflow-x: auto;
         }
         .article-content pre code {
             display: block;
@@ -268,6 +277,20 @@
             font-size: 1.6em;
             margin: 0 0 15px;
         }
+        .toc-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            z-index: 1001;
+            background: #FFFFFF;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
         footer {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
             color: white;
@@ -287,171 +310,248 @@
         footer .social a:hover {
             color: #FF7F50;
         }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .top-bar h1 {
+                font-size: 1.4em;
+            }
+            nav {
+                padding: 10px 0;
+                top: 50px;
+            }
+            nav .nav-toggle {
+                display: block;
+            }
+            nav ul {
+                display: none;
+                flex-direction: column;
+                padding: 10px;
+            }
+            nav ul.active {
+                display: flex;
+            }
+            nav li {
+                margin: 5px 0;
+            }
+            nav a {
+                padding: 10px;
+            }
+            nav .dropdown {
+                position: static;
+                box-shadow: none;
+                background: #F7F9FC;
+            }
+            .container {
+                flex-direction: column;
+                margin-top: 100px;
+                padding: 0 10px;
+            }
+            main {
+                flex: 1;
+            }
+            aside {
+                width: 100%;
+            }
+            .toc-toggle {
+                display: block;
+            }
+            aside .toc {
+                display: none;
+                position: fixed;
+                top: 100px;
+                right: 0;
+                width: 80%;
+                max-width: 300px;
+                background: #FFFFFF;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                z-index: 1000;
+            }
+            aside .toc.active {
+                display: block;
+            }
+            footer {
+                padding: 20px;
+            }
+            footer .social a {
+                font-size: 1.2em;
+                margin: 0 8px;
+            }
+            footer p {
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <h1>Java技术站</h1>
-    </div>
-    <nav>
-        <ul>
-            <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
-            <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
-                <div class="dropdown">
-                    <a href="#">Spring Boot</a>
-                    <a href="#">Spring Security</a>
-                </div>
-            </li>
-            <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
-            <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
-            <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
-        <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
+<div class="top-bar">
+    <h1>Java技术站</h1>
+</div>
+<nav>
+    <i class="fas fa-bars nav-toggle"></i>
+    <ul>
+        <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
+        <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
             <div class="dropdown">
-                <a href="#">XXL-JOB</a>
+                <a href="#">Spring Boot</a>
+                <a href="#">Spring Security</a>
             </div>
         </li>
-            <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a></li>
-        </ul>
-    </nav>
-    <div class="container">
-        <main>
-            <section class="section article-content">
-                <h1>Sentinel改造逻辑和主要代码</h1>
-                <div class="article-meta">发布于：2025-02-17</div>
+        <li><a href="#"><i class="fas fa-database"></i> 持久化技术</a></li>
+        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a></li>
+        <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
+        <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
+            <div class="dropdown">
+                <a href="../xxljob-sourcel-index.html">XXL-JOB</a>
+                <a href="../sentinel-index.html">Sentinel</a>
+            </div>
+        </li>
+        <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a></li>
+    </ul>
+</nav>
+<div class="container">
+    <main>
+        <section class="section article-content">
+            <h1>Sentinel改造逻辑和主要代码</h1>
+            <div class="article-meta">发布于：2025-02-17</div>
 
-                <h2 id="section1">数据持久化</h2>
-                <ol>
-                    <li>配置的规则数据持久化到mysql <strong>-- 已完成</strong>
-                        <ol>
-                            <li>原因：规则数据都存放在内存中，服务下线或者sentinel控制台重启，数据就会消失。且源码逻辑完全基于IP，而不是具体服务</li>
-                            <li>解决办法：把规则数据写入数据库中，并且数据以服务为维度保存，而不是IP</li>
-                        </ol>
-                    </li>
-                    <li>客户端重启后，控制台上依然不会展示配置数据，需要再次重启sentinel服务才行 <strong>-- 已完成</strong>
-                        <ol>
-                            <li>原因：规则数据推送到了客户端，而在控制台中查询的时候也是根据IP，从指定的客户端中捞取，并没有从数据库中获取，因此当客户端下线时，就会出现配置消失的现象。</li>
-                            <li>解决办法：根据服务名称，从数据库中获取配置数据，不是从指定的客户端中获取</li>
-                        </ol>
-                    </li>
-                    <li>新的机器上线，配置的规则不生效 <strong>-- 已完成</strong>
-                        <ol>
-                            <li>原因：sentinel是在客户端中触发逻辑的，刚上线的机器没有配置数据，因此控制台上虽然配置了，但是不会生效。</li>
-                            <li>解决办法：监听到有新机器上线时，根据服务名称从数据库中获取数据，并且主动将数据推送给客户端。</li>
-                        </ol>
-                    </li>
-                    <li>监控数据持久化<strong> -- 待定</strong></li>
-                </ol>
+            <h2 id="section1">数据持久化</h2>
+            <ol>
+                <li>配置的规则数据持久化到mysql <strong>-- 已完成</strong>
+                    <ol>
+                        <li>原因：规则数据都存放在内存中，服务下线或者sentinel控制台重启，数据就会消失。且源码逻辑完全基于IP，而不是具体服务</li>
+                        <li>解决办法：把规则数据写入数据库中，并且数据以服务为维度保存，而不是IP</li>
+                    </ol>
+                </li>
+                <li>客户端重启后，控制台上依然不会展示配置数据，需要再次重启sentinel服务才行 <strong>-- 已完成</strong>
+                    <ol>
+                        <li>原因：规则数据推送到了客户端，而在控制台中查询的时候也是根据IP，从指定的客户端中捞取，并没有从数据库中获取，因此当客户端下线时，就会出现配置消失的现象。</li>
+                        <li>解决办法：根据服务名称，从数据库中获取配置数据，不是从指定的客户端中获取</li>
+                    </ol>
+                </li>
+                <li>新的机器上线，配置的规则不生效 <strong>-- 已完成</strong>
+                    <ol>
+                        <li>原因：sentinel是在客户端中触发逻辑的，刚上线的机器没有配置数据，因此控制台上虽然配置了，但是不会生效。</li>
+                        <li>解决办法：监听到有新机器上线时，根据服务名称从数据库中获取数据，并且主动将数据推送给客户端。</li>
+                    </ol>
+                </li>
+                <li>监控数据持久化<strong> -- 待定</strong></li>
+            </ol>
 
-                <h2 id="section2">服务注册发现</h2>
-                <ol>
-                    <li>sentinel是懒加载，接口必须先手动调一遍，才能在sentinel控制台中展示出来。<strong>-- 待解决</strong>
-                        <ol>
-                            <li>解决办法：待定</li>
-                            <li>考虑做持久化
-                                <ol>
-                                    <li>第一种：仍旧手动调一遍，控制台接收到请求调用的心跳时，就保存到数据库里
-                                        <ol>
-                                            <li>优点：比较方便，业务方只需要手动调一遍接口就可以</li>
-                                            <li>缺点：需要改动客户端代码，目前客户端没有上报簇点链路的心跳。如果接口太多，也很麻烦。生产环境可能会存在不太合适手动调接口的情况。</li>
-                                        </ol>
-                                    </li>
-                                    <li>第二种：增加一个按钮，新增簇点链路
-                                        <ol>
-                                            <li>优点：方便，业务方可以在页面上自行添加</li>
-                                            <li>缺点：需要改动前端代码</li>
-                                        </ol>
-                                    </li>
-                                    <li>第三种：改造业务系统代码，自动获取所有http接口或者对外提供的dubbo接口，服务启动时，主动往控制台发送簇点链路的心跳。
-                                        <ol>
-                                            <li>优点：业务方接入最简单</li>
-                                            <li>缺点：需要改动客户端代码，并上报簇点链路信息。</li>
-                                        </ol>
-                                    </li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </li>
-                    <li>服务下线之后，控制台左侧菜单中的服务也跟着消失 <strong>-- 已完成</strong>
-                        <ol>
-                            <li>原因：服务信息，机器信息都保存在内存中，且当服务下线之后，控制台会将服务从内存中剔除，因此服务下线后配置也跟着全部消失</li>
-                            <li>解决办法：
-                                <ol>
-                                    <li>监听到有新服务上线时，服务信息同时写入数据库、内存中。</li>
-                                    <li>服务信息的获取从数据库中加载到内存，而不仅仅依赖内存。</li>
-                                    <li>当服务的所有机器下线时，不将服务剔除</li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </li>
-                    <li>服务上线后，如果没有检测到机器，是无法新增、编辑规则配置的 <strong>-- 已完成</strong>
-                        <ol>
-                            <li>原因：源码的逻辑是：所有规则的配置都基于IP而不是服务，因此如果没有检测到机器，无法获取到具体IP时，就无法编辑/新增数据（前端按钮置灰了）</li>
-                            <li>背景：因为上面改造成服务下线后，左侧菜单服务不会剔除，因此开源版剔除服务的这个特性反而就成了一个bug，所以需要改一下。</li>
-                            <li>解决办法：
-                                <ol>
-                                    <li>基于服务去更新，而不是IP</li>
-                                    <li>前端页面的调整，当没有机器时，按钮不能置灰</li>
-                                    <li>后端保存数据时，把ip port的条件过滤删除。</li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </li>
-                </ol>
+            <h2 id="section2">服务注册发现</h2>
+            <ol>
+                <li>sentinel是懒加载，接口必须先手动调一遍，才能在sentinel控制台中展示出来。<strong>-- 待解决</strong>
+                    <ol>
+                        <li>解决办法：待定</li>
+                        <li>考虑做持久化
+                            <ol>
+                                <li>第一种：仍旧手动调一遍，控制台接收到请求调用的心跳时，就保存到数据库里
+                                    <ol>
+                                        <li>优点：比较方便，业务方只需要手动调一遍接口就可以</li>
+                                        <li>缺点：需要改动客户端代码，目前客户端没有上报簇点链路的心跳。如果接口太多，也很麻烦。生产环境可能会存在不太合适手动调接口的情况。</li>
+                                    </ol>
+                                </li>
+                                <li>第二种：增加一个按钮，新增簇点链路
+                                    <ol>
+                                        <li>优点：方便，业务方可以在页面上自行添加</li>
+                                        <li>缺点：需要改动前端代码</li>
+                                    </ol>
+                                </li>
+                                <li>第三种：改造业务系统代码，自动获取所有http接口或者对外提供的dubbo接口，服务启动时，主动往控制台发送簇点链路的心跳。
+                                    <ol>
+                                        <li>优点：业务方接入最简单</li>
+                                        <li>缺点：需要改动客户端代码，并上报簇点链路信息。</li>
+                                    </ol>
+                                </li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>服务下线之后，控制台左侧菜单中的服务也跟着消失 <strong>-- 已完成</strong>
+                    <ol>
+                        <li>原因：服务信息，机器信息都保存在内存中，且当服务下线之后，控制台会将服务从内存中剔除，因此服务下线后配置也跟着全部消失</li>
+                        <li>解决办法：
+                            <ol>
+                                <li>监听到有新服务上线时，服务信息同时写入数据库、内存中。</li>
+                                <li>服务信息的获取从数据库中加载到内存，而不仅仅依赖内存。</li>
+                                <li>当服务的所有机器下线时，不将服务剔除</li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>服务上线后，如果没有检测到机器，是无法新增、编辑规则配置的 <strong>-- 已完成</strong>
+                    <ol>
+                        <li>原因：源码的逻辑是：所有规则的配置都基于IP而不是服务，因此如果没有检测到机器，无法获取到具体IP时，就无法编辑/新增数据（前端按钮置灰了）</li>
+                        <li>背景：因为上面改造成服务下线后，左侧菜单服务不会剔除，因此开源版剔除服务的这个特性反而就成了一个bug，所以需要改一下。</li>
+                        <li>解决办法：
+                            <ol>
+                                <li>基于服务去更新，而不是IP</li>
+                                <li>前端页面的调整，当没有机器时，按钮不能置灰</li>
+                                <li>后端保存数据时，把ip port的条件过滤删除。</li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h2 id="section3">rpc接口调用</h2>
-                <ol>
-                    <li>rpc接口调用，如何设置规则
-                        <ol>
-                            <li>解决办法：使用@SentinelResource 注解，但是这种需要业务方对每个方法进行改造</li>
-                            <li>更好的解决办法，待定<strong>-- 待解决</strong></li>
-                        </ol>
-                    </li>
-                </ol>
+            <h2 id="section3">rpc接口调用</h2>
+            <ol>
+                <li>rpc接口调用，如何设置规则
+                    <ol>
+                        <li>解决办法：使用@SentinelResource 注解，但是这种需要业务方对每个方法进行改造</li>
+                        <li>更好的解决办法，待定<strong>-- 待解决</strong></li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h2 id="section4">高可用改造</h2>
-                <ol>
-                    <li>所有信息都依赖于本地缓存，如果缓存失效、更新不及时、服务重启可能会出现数据错误 <strong>-- 待解决</strong>
-                        <ol>
-                            <li>解决办法：
-                                <ol>
-                                    <li>定时任务，每隔一段时间定时刷新缓存。<strong>-- 待解决</strong></li>
-                                    <li>sentinel服务启动时加载所有数据：规则数据、服务数据、已存在的机器数据（ip、port等） <strong>-- 已完成</strong></li>
-                                </ol>
-                            </li>
-                        </ol>
-                    </li>
-                    <li>规则数据推送失败，尝试重试 <strong>-- 待解决</strong>
-                        <ol>
-                            <li>接收到错误的返回码时，快速重试3次。</li>
-                        </ol>
-                    </li>
-                    <li>环境切换
-                        <ol>
-                            <li>增加环境变量，根据环境变成读取不同的配置文件</li>
-                        </ol>
-                    </li>
-                </ol>
+            <h2 id="section4">高可用改造</h2>
+            <ol>
+                <li>所有信息都依赖于本地缓存，如果缓存失效、更新不及时、服务重启可能会出现数据错误 <strong>-- 待解决</strong>
+                    <ol>
+                        <li>解决办法：
+                            <ol>
+                                <li>定时任务，每隔一段时间定时刷新缓存。<strong>-- 待解决</strong></li>
+                                <li>sentinel服务启动时加载所有数据：规则数据、服务数据、已存在的机器数据（ip、port等） <strong>-- 已完成</strong></li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>规则数据推送失败，尝试重试 <strong>-- 待解决</strong>
+                    <ol>
+                        <li>接收到错误的返回码时，快速重试3次。</li>
+                    </ol>
+                </li>
+                <li>环境切换
+                    <ol>
+                        <li>增加环境变量，根据环境变成读取不同的配置文件</li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h2 id="section5">Sentinel 1.8.6 开源版本的bug</h2>
-                <ol>
-                    <li>流控规则无法选择集群模式
-                        <ol>
-                            <li>页面中有，但是无法配置</li>
-                        </ol>
-                    </li>
-                    <li>授权规则，白名单不可用
-                        <ol>
-                            <li>可以配置白名单，但是不生效</li>
-                        </ol>
-                    </li>
-                </ol>
+            <h2 id="section5">Sentinel 1.8.6 开源版本的bug</h2>
+            <ol>
+                <li>流控规则无法选择集群模式
+                    <ol>
+                        <li>页面中有，但是无法配置</li>
+                    </ol>
+                </li>
+                <li>授权规则，白名单不可用
+                    <ol>
+                        <li>可以配置白名单，但是不生效</li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h2 id="section6">源码改动逻辑</h2>
-                <p>代码地址：<a href="#">待上传</a></p>
-                <p>分支：</p>
-                <p>表结构：sentinel_rule 文件中</p>
-                <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188705-08ce9d26-0f68-4bff-9e94-b326f97165fd.png" alt="表结构图"></p>
-                <pre class="sql"><code>CREATE TABLE `cc_sentinel_rule` (
+            <h2 id="section6">源码改动逻辑</h2>
+            <p>代码地址：<a href="#">待上传</a></p>
+            <p>分支：</p>
+            <p>表结构：sentinel_rule 文件中</p>
+            <p><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188705-08ce9d26-0f68-4bff-9e94-b326f97165fd.png" alt="表结构图"></p>
+            <pre class="sql"><code>CREATE TABLE `cc_sentinel_rule` (
   `rule_id` int NOT NULL AUTO_INCREMENT,
   `rule_name` <span class="keyword">varchar</span>(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT <span class="string">'规则名称'</span>,
   `rule_type` int NOT NULL COMMENT <span class="string">'规则类型'</span>,
@@ -473,188 +573,220 @@ CREATE TABLE `app_info` (
 ) CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci  COMMENT=<span class="string">'服务信息'</span>;
                 </code></pre>
 
-                <h3 id="section6-1">数据持久化</h3>
-                <ol>
-                    <li>没有引用mybaits，而是采用最原始的jdbc方式连接数据库，application.properties 增加下面配置：
-                        <blockquote><code>sentinel.mysql.password=1234567
-sentinel.mysql.userName=root
-sentinel.mysql.url=jdbc:mysql://localhost:3306/sentinel?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=Asia/Shanghai&amp;allowMultiQueries=true</code></blockquote>
-                    </li>
-                    <li>连接数据库代码在这里：
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188678-566d6221-8797-465b-ba42-d8346eb8c6ee.png" alt="数据库连接代码位置"></li>
-                        </ol>
-                    </li>
-                    <li>改动点：以流控规则获取为例，FlowControllerV1 #apiQueryMachineRules
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188750-9d6add8e-49e7-4ad3-8db2-933a439d7510.png" alt="流控规则获取改动点"></li>
-                        </ol>
-                    </li>
-                    <li>DynamicRuleProvider 是sentinel提供的一个获取配置的方法。DynamicRulePublisher 则是push配置，sentinel主要有5个规则配置，因此我实现了5类规则的provider和publisher。
-                        <blockquote><code><span class="keyword">@Autowired</span>
-<span class="keyword">@Qualifier</span>(<span class="string">"flowRuleDatabaseProvider"</span>)
-<span class="keyword">private</span> DynamicRuleProvider&lt;List&lt;FlowRuleEntity&gt;&gt; ruleProvider;
+            <h3 id="section6-1">数据持久化</h3>
+            <ol>
+                <li>没有引用mybaits，而是采用最原始的jdbc方式连接数据库，application.properties 增加下面配置：
+                    <blockquote><code>sentinel.mysql.password=1234567
+                        sentinel.mysql.userName=root
+                        sentinel.mysql.url=jdbc:mysql://localhost:3306/sentinel?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=Asia/Shanghai&amp;allowMultiQueries=true</code></blockquote>
+                </li>
+                <li>连接数据库代码在这里：
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188678-566d6221-8797-465b-ba42-d8346eb8c6ee.png" alt="数据库连接代码位置"></li>
+                    </ol>
+                </li>
+                <li>改动点：以流控规则获取为例，FlowControllerV1 #apiQueryMachineRules
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188750-9d6add8e-49e7-4ad3-8db2-933a439d7510.png" alt="流控规则获取改动点"></li>
+                    </ol>
+                </li>
+                <li>DynamicRuleProvider 是sentinel提供的一个获取配置的方法。DynamicRulePublisher 则是push配置，sentinel主要有5个规则配置，因此我实现了5类规则的provider和publisher。
+                    <blockquote><code><span class="keyword">@Autowired</span>
+                        <span class="keyword">@Qualifier</span>(<span class="string">"flowRuleDatabaseProvider"</span>)
+                        <span class="keyword">private</span> DynamicRuleProvider&lt;List&lt;FlowRuleEntity&gt;&gt; ruleProvider;
 
-<span class="keyword">@Autowired</span>
-<span class="keyword">@Qualifier</span>(<span class="string">"flowRuleDatabasePublisher"</span>)
-<span class="keyword">private</span> DynamicRulePublisher&lt;List&lt;FlowRuleEntity&gt;&gt; rulePublisher;</code></blockquote>
-                    </li>
-                    <li>配置的持久化入口：以流控规则为例
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188749-cf11e131-8153-44e1-be64-ea87132a6c67.png" alt="流控规则持久化入口"></li>
-                        </ol>
-                    </li>
-                </ol>
+                        <span class="keyword">@Autowired</span>
+                        <span class="keyword">@Qualifier</span>(<span class="string">"flowRuleDatabasePublisher"</span>)
+                        <span class="keyword">private</span> DynamicRulePublisher&lt;List&lt;FlowRuleEntity&gt;&gt; rulePublisher;</code></blockquote>
+                </li>
+                <li>配置的持久化入口：以流控规则为例
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188749-cf11e131-8153-44e1-be64-ea87132a6c67.png" alt="流控规则持久化入口"></li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h3 id="section6-2">重点逻辑</h3>
-                <h4 id="section6-2-1">配置获取与编辑的入口类</h4>
-                <p>系统相关：</p>
-                <ol>
-                    <li>AppController 服务信息接口</li>
-                    <li>AuthController 登陆接口</li>
-                    <li>MachineRegistryController 机器注册接口（获取客户端的心跳）</li>
-                </ol>
-                <p>规则接口：</p>
-                <ol>
-                    <li>AuthorityRuleController 授权规则</li>
-                    <li>DegradeController 降级规则</li>
-                    <li>FlowControllerV1 流控规则</li>
-                    <li>ParamFlowRuleController 热点规则</li>
-                    <li>SystemController 系统规则</li>
-                </ol>
+            <h3 id="section6-2">重点逻辑</h3>
+            <h4 id="section6-2-1">配置获取与编辑的入口类</h4>
+            <p>系统相关：</p>
+            <ol>
+                <li>AppController 服务信息接口</li>
+                <li>AuthController 登陆接口</li>
+                <li>MachineRegistryController 机器注册接口（获取客户端的心跳）</li>
+            </ol>
+            <p>规则接口：</p>
+            <ol>
+                <li>AuthorityRuleController 授权规则</li>
+                <li>DegradeController 降级规则</li>
+                <li>FlowControllerV1 流控规则</li>
+                <li>ParamFlowRuleController 热点规则</li>
+                <li>SystemController 系统规则</li>
+            </ol>
 
-                <h4 id="section6-2-2">5类规则的provider和publisher</h4>
-                <ol>
-                    <li>重点改造类：
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188735-9ff7c042-7df6-4c20-b7e8-c23911f5512d.png" alt="重点改造类"></li>
-                        </ol>
-                    </li>
-                    <li>开源版原有：
-                        <ol>
-                            <li>动态规则获取：DynamicRuleProvider</li>
-                            <li>动态规则push：DynamicRulePublisher</li>
-                            <li>流控规则获取：FlowRuleApiProvider</li>
-                            <li>流控规则push：FlowRuleApiPublisher</li>
-                        </ol>
-                    </li>
-                    <li>此次改造增加的类：
-                        <ol>
-                            <li>枚举类：DatabaseRuleEnums</li>
-                            <li>从数据库获取数据的类：BaseDatabaseRuleProvider</li>
-                            <li>写入数据库的类：BaseDatabaseRulePublisher</li>
-                            <li>provider包下所有类：根据规则类型不同，从数据库中获取规则</li>
-                            <li>publisher包下所有类：根据规则类型不同，写入到数据库中</li>
-                        </ol>
-                    </li>
-                </ol>
+            <h4 id="section6-2-2">5类规则的provider和publisher</h4>
+            <ol>
+                <li>重点改造类：
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118188735-9ff7c042-7df6-4c20-b7e8-c23911f5512d.png" alt="重点改造类"></li>
+                    </ol>
+                </li>
+                <li>开源版原有：
+                    <ol>
+                        <li>动态规则获取：DynamicRuleProvider</li>
+                        <li>动态规则push：DynamicRulePublisher</li>
+                        <li>流控规则获取：FlowRuleApiProvider</li>
+                        <li>流控规则push：FlowRuleApiPublisher</li>
+                    </ol>
+                </li>
+                <li>此次改造增加的类：
+                    <ol>
+                        <li>枚举类：DatabaseRuleEnums</li>
+                        <li>从数据库获取数据的类：BaseDatabaseRuleProvider</li>
+                        <li>写入数据库的类：BaseDatabaseRulePublisher</li>
+                        <li>provider包下所有类：根据规则类型不同，从数据库中获取规则</li>
+                        <li>publisher包下所有类：根据规则类型不同，写入到数据库中</li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h4 id="section6-2-3">配置获取改造</h4>
-                <ol>
-                    <li>以流控规则获取为例，com.c.sentinel.dashboard.controller.FlowControllerV1 #apiQueryMachineRules
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189599-26aff944-6d8d-4809-8511-3cfa8a19bfb2.png" alt="流控规则获取改造"></li>
-                        </ol>
-                    </li>
-                    <li>存在一个优化点：考虑直接从缓存中读取，而不是数据库</li>
-                </ol>
+            <h4 id="section6-2-3">配置获取改造</h4>
+            <ol>
+                <li>以流控规则获取为例，com.c.sentinel.dashboard.controller.FlowControllerV1 #apiQueryMachineRules
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189599-26aff944-6d8d-4809-8511-3cfa8a19bfb2.png" alt="流控规则获取改造"></li>
+                    </ol>
+                </li>
+                <li>存在一个优化点：考虑直接从缓存中读取，而不是数据库</li>
+            </ol>
 
-                <h4 id="section6-2-4">配置持久化改造</h4>
-                <ol>
-                    <li>以流控规则保存为例，入口： FlowControllerV1 #apiAddFlowRule</li>
-                    <li>沿用sentinel的设计思想，save方法只保存到内存中。pushRules方法写入数据库、push到客户端。
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189786-804968af-9b5b-42c4-9304-a5c86a0fdf9d.png" alt="流控规则保存入口"></li>
-                        </ol>
-                    </li>
-                    <li>重点逻辑： InMemoryRuleRepositoryAdapter #publishAllMachineRules
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189801-1f4ed9e0-bf16-42ee-bb62-c49fdc91476c.png" alt="publishAllMachineRules"></li>
-                        </ol>
-                    </li>
-                    <li>push到客户端： SentinelApiClient，根据规则的类型不同、push或者拉取的方式不同，调不同的方法。</li>
-                    <li>这个是推送流控规则到客户端的的方法：
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189690-a6b99eee-c1ae-4158-be03-662d3bc19ecb.png" alt="推送流控规则到客户端"></li>
-                        </ol>
-                    </li>
-                </ol>
+            <h4 id="section6-2-4">配置持久化改造</h4>
+            <ol>
+                <li>以流控规则保存为例，入口： FlowControllerV1 #apiAddFlowRule</li>
+                <li>沿用sentinel的设计思想，save方法只保存到内存中。pushRules方法写入数据库、push到客户端。
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189786-804968af-9b5b-42c4-9304-a5c86a0fdf9d.png" alt="流控规则保存入口"></li>
+                    </ol>
+                </li>
+                <li>重点逻辑： InMemoryRuleRepositoryAdapter #publishAllMachineRules
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189801-1f4ed9e0-bf16-42ee-bb62-c49fdc91476c.png" alt="publishAllMachineRules"></li>
+                    </ol>
+                </li>
+                <li>push到客户端： SentinelApiClient，根据规则的类型不同、push或者拉取的方式不同，调不同的方法。</li>
+                <li>这个是推送流控规则到客户端的的方法：
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189690-a6b99eee-c1ae-4158-be03-662d3bc19ecb.png" alt="推送流控规则到客户端"></li>
+                    </ol>
+                </li>
+            </ol>
 
-                <h4 id="section6-2-5">服务数据持久化改造</h4>
-                <ol>
-                    <li>客户端心跳上报：
-                        <ol>
-                            <li>判断是否新的服务，如果是新服务，则保存服务的相关信息</li>
-                            <li>判断是否新机器，如果是新机器，则获取配置数据，推送到客户端。</li>
-                        </ol>
-                    </li>
-                    <li>SimpleMachineDiscovery # addMachine
-                        <ol>
-                            <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189648-ca314877-dd3f-4a7e-b4d6-83a7aad4aeac.png" alt="addMachine"></li>
-                        </ol>
-                    </li>
-                </ol>
+            <h4 id="section6-2-5">服务数据持久化改造</h4>
+            <ol>
+                <li>客户端心跳上报：
+                    <ol>
+                        <li>判断是否新的服务，如果是新服务，则保存服务的相关信息</li>
+                        <li>判断是否新机器，如果是新机器，则获取配置数据，推送到客户端。</li>
+                    </ol>
+                </li>
+                <li>SimpleMachineDiscovery # addMachine
+                    <ol>
+                        <li><img src="https://cdn.nlark.com/yuque/0/2025/png/45384496/1740118189648-ca314877-dd3f-4a7e-b4d6-83a7aad4aeac.png" alt="addMachine"></li>
+                    </ol>
+                </li>
+            </ol>
 
-                <div class="article-tags">
-                    <a href="#">Sentinel</a>
-                    <a href="#">数据持久化</a>
-                    <a href="#">服务注册</a>
-                    <a href="#">高可用</a>
-                </div>
-            </section>
-        </main>
-        <aside>
-            <section class="section toc">
-                <h3>文章目录</h3>
-                <ul>
-                    <li><a href="#section1">数据持久化</a></li>
-                    <li><a href="#section2">服务注册发现</a></li>
-                    <li><a href="#section3">rpc接口调用</a></li>
-                    <li><a href="#section4">高可用改造</a></li>
-                    <li><a href="#section5">Sentinel 1.8.6 开源版本的bug</a></li>
-                    <li><a href="#section6">源码改动逻辑</a>
-                        <ul>
-                            <li><a href="#section6-1">数据持久化</a></li>
-                            <li><a href="#section6-2">重点逻辑</a>
-                                <ul>
-                                    <li><a href="#section6-2-1">配置获取与编辑的入口类</a></li>
-                                    <li><a href="#section6-2-2">5类规则的provider和publisher</a></li>
-                                    <li><a href="#section6-2-3">配置获取改造</a></li>
-                                    <li><a href="#section6-2-4">配置持久化改造</a></li>
-                                    <li><a href="#section6-2-5">服务数据持久化改造</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </section>
-            <section class="section tags">
-                <h3>文章标签</h3>
-                <div>
-                    <a href="#" class="article-tags">Sentinel</a>
-                    <a href="#" class="article-tags">数据持久化</a>
-                    <a href="#" class="article-tags">服务注册</a>
-                    <a href="#" class="article-tags">高可用</a>
-                </div>
-            </section>
-            <section class="section hot-posts">
-                <h3>热门文章</h3>
-                <ul>
-                    <li><a href="#">Spring Boot 3.3实战</a></li>
-                    <li><a href="#">Hibernate性能优化</a></li>
-                    <li><a href="#">Java并发编程入门</a></li>
-                </ul>
-            </section>
-        </aside>
+            <div class="article-tags">
+                <a href="#">Sentinel</a>
+                <a href="#">数据持久化</a>
+                <a href="#">服务注册</a>
+                <a href="#">高可用</a>
+            </div>
+        </section>
+    </main>
+    <aside>
+        <i class="fas fa-list toc-toggle"></i>
+        <section class="section toc">
+            <h3>文章目录</h3>
+            <ul>
+                <li><a href="#section1">数据持久化</a></li>
+                <li><a href="#section2">服务注册发现</a></li>
+                <li><a href="#section3">rpc接口调用</a></li>
+                <li><a href="#section4">高可用改造</a></li>
+                <li><a href="#section5">Sentinel 1.8.6 开源版本的bug</a></li>
+                <li><a href="#section6">源码改动逻辑</a>
+                    <ul>
+                        <li><a href="#section6-1">数据持久化</a></li>
+                        <li><a href="#section6-2">重点逻辑</a>
+                            <ul>
+                                <li><a href="#section6-2-1">配置获取与编辑的入口类</a></li>
+                                <li><a href="#section6-2-2">5类规则的provider和publisher</a></li>
+                                <li><a href="#section6-2-3">配置获取改造</a></li>
+                                <li><a href="#section6-2-4">配置持久化改造</a></li>
+                                <li><a href="#section6-2-5">服务数据持久化改造</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section class="section tags">
+            <h3>文章标签</h3>
+            <div>
+                <a href="#" class="article-tags">Sentinel</a>
+                <a href="#" class="article-tags">数据持久化</a>
+                <a href="#" class="article-tags">服务注册</a>
+                <a href="#" class="article-tags">高可用</a>
+            </div>
+        </section>
+        <section class="section hot-posts">
+            <h3>热门文章</h3>
+            <ul>
+                <li><a href="#">Spring Boot 3.3实战</a></li>
+                <li><a href="#">Hibernate性能优化</a></li>
+                <li><a href="#">Java并发编程入门</a></li>
+            </ul>
+        </section>
+    </aside>
+</div>
+<footer>
+    <div class="social">
+        <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+        <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
+        <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <footer>
-        <div class="social">
-            <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
-            <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
-            <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
-        </div>
-        <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
-        <p>© 2025 Java技术站 版权所有</p>
-    </footer>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
+    <p>© 2025 Java技术站 版权所有</p>
+</footer>
+<script>
+    // Navigation menu toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('nav ul');
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+
+    // TOC toggle for mobile
+    const tocToggle = document.querySelector('.toc-toggle');
+    const toc = document.querySelector('.toc');
+    tocToggle.addEventListener('click', () => {
+        toc.classList.toggle('active');
+    });
+
+    // TOC smooth scrolling
+    const tocItems = document.querySelectorAll('.toc li a');
+    tocItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

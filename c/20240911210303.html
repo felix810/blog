@@ -15,6 +15,7 @@
             color: #333;
             line-height: 1.6;
             overflow-x: hidden;
+            box-sizing: border-box;
         }
         .top-bar {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -43,6 +44,13 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 999;
             box-sizing: border-box;
+        }
+        nav .nav-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 10px 20px;
         }
         nav ul {
             list-style-type: none;
@@ -99,7 +107,6 @@
             gap: 30px;
             padding: 0 20px;
             box-sizing: border-box;
-            overflow-x: hidden;
         }
         main {
             flex: 2;
@@ -118,7 +125,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
             margin-top: 40px;
             box-sizing: border-box;
-            max-width: 100%;
         }
         .section h1 {
             color: #4A90E2;
@@ -146,13 +152,6 @@
         .article-content p {
             margin: 15px 0;
             word-wrap: break-word;
-            max-width: 100%;
-        }
-        .article-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 15px 0;
         }
         .article-content pre {
             background-color: #2D2D2D;
@@ -163,10 +162,10 @@
             color: #ABB2BF;
             border: 1px solid #404040;
             white-space: pre-wrap;
-            word-wrap: break-word;
+            word-break: break-word;
             max-width: 100%;
             box-sizing: border-box;
-            overflow-x: hidden;
+            overflow-x: auto;
         }
         .article-content pre code {
             display: block;
@@ -202,22 +201,57 @@
             border-radius: 4px;
             font-family: 'Consolas', 'Courier New', monospace;
             word-wrap: break-word;
+        }
+        .article-content blockquote {
+            background-color: #F5F6F5;
+            border-left: 4px solid #4A90E2;
+            padding: 10px 15px;
+            margin: 15px 0;
+            color: #555;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        .article-content img {
             max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .article-content ol {
+            padding-left: 20px;
+        }
+        .article-content ol ol {
+            list-style-type: lower-alpha;
+        }
+        .article-content ol ol ol {
+            list-style-type: lower-roman;
+        }
+        .article-content ol ol ol ol {
+            list-style-type: decimal;
+        }
+        .article-content ol ol ol ol ol {
+            list-style-type: lower-alpha;
         }
         .article-content table {
-            width: 100%;
             border-collapse: collapse;
+            width: 100%;
+            max-width: 100%;
             margin: 15px 0;
+            overflow-x: auto;
+            display: block;
         }
-        .article-content th, .article-content td {
+        .article-content table th, .article-content table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-            word-wrap: break-word;
-            max-width: 100%;
         }
-        .article-content th {
+        .article-content table th {
             background-color: #f2f2f2;
+            color: #333;
+        }
+        .article-content table tr:nth-child(even) {
+            background-color: #f9f9f9;
         }
         .article-tags {
             margin: 20px 0;
@@ -243,6 +277,12 @@
         aside li {
             margin: 10px 0;
         }
+        aside .toc ul ul {
+            margin-left: 20px;
+        }
+        aside .toc ul ul ul {
+            margin-left: 40px;
+        }
         aside a {
             color: #4A90E2;
             text-decoration: none;
@@ -252,17 +292,24 @@
         aside a:hover {
             color: #F5A623;
         }
-        /* 优化目录的缩进样式 */
-        .toc ul {
-            padding-left: 0;
-        }
-        .toc ul ul {
-            padding-left: 20px;
-        }
         .toc h3, .tags h3, .hot-posts h3 {
             color: #4A90E2;
             font-size: 1.6em;
             margin: 0 0 15px;
+        }
+        .toc-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            z-index: 1001;
+            background: #FFFFFF;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         footer {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -283,6 +330,87 @@
         footer .social a:hover {
             color: #FF7F50;
         }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .top-bar h1 {
+                font-size: 1.4em;
+            }
+            nav {
+                padding: 10px 0;
+                top: 50px;
+            }
+            nav .nav-toggle {
+                display: block;
+            }
+            nav ul {
+                display: none;
+                flex-direction: column;
+                padding: 10px;
+            }
+            nav ul.active {
+                display: flex;
+            }
+            nav li {
+                margin: 5px 0;
+            }
+            nav a {
+                padding: 10px;
+            }
+            nav .dropdown {
+                position: static;
+                box-shadow: none;
+                background: #F7F9FC;
+            }
+            .container {
+                flex-direction: column;
+                margin-top: 100px;
+                padding: 0 10px;
+            }
+            main {
+                flex: 1;
+            }
+            aside {
+                width: 100%;
+            }
+            .toc-toggle {
+                display: block;
+            }
+            aside .toc {
+                display: none;
+                position: fixed;
+                top: 100px;
+                right: 0;
+                width: 80%;
+                max-width: 300px;
+                background: #FFFFFF;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                z-index: 1000;
+            }
+            aside .toc.active {
+                display: block;
+            }
+            footer {
+                padding: 20px;
+            }
+            footer .social a {
+                font-size: 1.2em;
+                margin: 0 8px;
+            }
+            footer p {
+                font-size: 0.9em;
+            }
+            .article-content table {
+                font-size: 0.9em;
+            }
+            .article-content table th, .article-content table td {
+                padding: 6px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -290,6 +418,7 @@
     <h1>Java技术站</h1>
 </div>
 <nav>
+    <i class="fas fa-bars nav-toggle"></i>
     <ul>
         <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
         <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
@@ -303,7 +432,8 @@
         <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
         <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
             <div class="dropdown">
-                <a href="#">XXL-JOB</a>
+                <a href="../xxljob-sourcel-index.html">XXL-JOB</a>
+                <a href="../sentinel-index.html">Sentinel</a>
             </div>
         </li>
         <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a></li>
@@ -319,7 +449,7 @@
             <p>中台侧从POS厂商同步商品数据，POS会多次重复的推送商品数据。</p>
             <ol>
                 <li>中台侧没有增加<code>@Transaction</code>注解，也没有做好幂等校验，导致商品数据出现重复。</li>
-                <li>中台对代码进行了优化，增加了事务注解，同时用商品ID做Redis锁，保证数据不会重复，但之后出现了MySQL死锁的问题。日志如下：</li>
+                <li>中台对代码进行了优化，增加了事务注解，同时用商品ID做Redis锁，保证数据不会重复，但之后出现了MySQL死lock的问题。日志如下：</li>
             </ol>
             <pre class="java"><code>Deadlock found when trying to get lock; try restarting transaction</code></pre>
 
@@ -400,6 +530,7 @@
         </section>
     </main>
     <aside>
+        <i class="fas fa-list toc-toggle"></i>
         <section class="section toc">
             <h3>文章目录</h3>
             <ul>
@@ -451,8 +582,39 @@
         <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
         <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email&#160;protected]</a> | <a href="#">服务条款</a></p>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
     <p>© 2025 Java技术站 版权所有</p>
 </footer>
+<script>
+    // Navigation menu toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('nav ul');
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+
+    // TOC toggle for mobile
+    const tocToggle = document.querySelector('.toc-toggle');
+    const toc = document.querySelector('.toc');
+    tocToggle.addEventListener('click', () => {
+        toc.classList.toggle('active');
+    });
+
+    // TOC smooth scrolling
+    const tocItems = document.querySelectorAll('.toc li a');
+    tocItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>SpringBoot与Apollo集成中Dubbo配置加载失败问题 - Java技术站</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -14,6 +15,7 @@
             color: #333;
             line-height: 1.6;
             overflow-x: hidden;
+            box-sizing: border-box;
         }
         .top-bar {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -42,6 +44,13 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 999;
             box-sizing: border-box;
+        }
+        nav .nav-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            padding: 10px 20px;
         }
         nav ul {
             list-style-type: none;
@@ -156,6 +165,7 @@
             word-break: break-word;
             max-width: 100%;
             box-sizing: border-box;
+            overflow-x: auto;
         }
         .article-content pre code {
             display: block;
@@ -176,6 +186,30 @@
             border-radius: 4px;
             font-family: 'Consolas', 'Courier New', monospace;
             word-wrap: break-word;
+        }
+        .article-content blockquote {
+            background-color: #F5F6F5;
+            border-left: 4px solid #4A90E2;
+            padding: 10px 15px;
+            margin: 15px 0;
+            color: #555;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+        .article-content ol {
+            padding-left: 20px;
+        }
+        .article-content ol ol {
+            list-style-type: lower-alpha;
+        }
+        .article-content ol ol ol {
+            list-style-type: lower-roman;
+        }
+        .article-content ol ol ol ol {
+            list-style-type: decimal;
+        }
+        .article-content ol ol ol ol ol {
+            list-style-type: lower-alpha;
         }
         .article-tags {
             margin: 20px 0;
@@ -221,6 +255,20 @@
             font-size: 1.6em;
             margin: 0 0 15px;
         }
+        .toc-toggle {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            cursor: pointer;
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            z-index: 1001;
+            background: #FFFFFF;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
         footer {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
             color: white;
@@ -240,6 +288,81 @@
         footer .social a:hover {
             color: #FF7F50;
         }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .top-bar h1 {
+                font-size: 1.4em;
+            }
+            nav {
+                padding: 10px 0;
+                top: 50px;
+            }
+            nav .nav-toggle {
+                display: block;
+            }
+            nav ul {
+                display: none;
+                flex-direction: column;
+                padding: 10px;
+            }
+            nav ul.active {
+                display: flex;
+            }
+            nav li {
+                margin: 5px 0;
+            }
+            nav a {
+                padding: 10px;
+            }
+            nav .dropdown {
+                position: static;
+                box-shadow: none;
+                background: #F7F9FC;
+            }
+            .container {
+                flex-direction: column;
+                margin-top: 100px;
+                padding: 0 10px;
+            }
+            main {
+                flex: 1;
+            }
+            aside {
+                width: 100%;
+            }
+            .toc-toggle {
+                display: block;
+            }
+            aside .toc {
+                display: none;
+                position: fixed;
+                top: 100px;
+                right: 0;
+                width: 80%;
+                max-width: 300px;
+                background: #FFFFFF;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                z-index: 1000;
+            }
+            aside .toc.active {
+                display: block;
+            }
+            footer {
+                padding: 20px;
+            }
+            footer .social a {
+                font-size: 1.2em;
+                margin: 0 8px;
+            }
+            footer p {
+                font-size: 0.9em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -247,6 +370,7 @@
     <h1>Java技术站</h1>
 </div>
 <nav>
+    <i class="fas fa-bars nav-toggle"></i>
     <ul>
         <li><a href="#"><i class="fas fa-code"></i> 核心Java</a></li>
         <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
@@ -260,7 +384,8 @@
         <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a></li>
         <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
             <div class="dropdown">
-                <a href="#">XXL-JOB</a>
+                <a href="../xxljob-sourcel-index.html">XXL-JOB</a>
+                <a href="../sentinel-index.html">Sentinel</a>
             </div>
         </li>
         <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a></li>
@@ -354,6 +479,7 @@ at com.alibaba.spring.beans.factory.annotation.AbstractAnnotationBeanPostProcess
         </section>
     </main>
     <aside>
+        <i class="fas fa-list toc-toggle"></i>
         <section class="section toc">
             <h3>文章目录</h3>
             <ul>
@@ -363,12 +489,7 @@ at com.alibaba.spring.beans.factory.annotation.AbstractAnnotationBeanPostProcess
                         <li><a href="#section2-1">1. 分析原因</a></li>
                         <li><a href="#section2-2">2. 本地启动</a></li>
                         <li><a href="#section2-3">3. 验证apollo</a></li>
-                        <li><a href="#section2-4">4. 再次查看日志</a>
-                            <ul>
-                                <li><a href="#section2-4">OverrideDubboConfigApplicationListener 类的作用</a></li>
-                                <li><a href="#section2-4">dubbo配置加载失败的原因</a></li>
-                            </ul>
-                        </li>
+                        <li><a href="#section2-4">4. 再次查看日志</a></li>
                         <li><a href="#section2-5">5. 解决问题</a></li>
                     </ul>
                 </li>
@@ -399,8 +520,39 @@ at com.alibaba.spring.beans.factory.annotation.AbstractAnnotationBeanPostProcess
         <a href="#" aria-label="Weibo"><i class="fab fa-weibo"></i></a>
         <a href="#" aria-label="QQ"><i class="fab fa-qq"></i></a>
     </div>
-    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
+    <p>联系方式：<a href="/cdn-cgi/l/email-protection">[email protected]</a> | <a href="#">服务条款</a></p>
     <p>© 2025 Java技术站 版权所有</p>
 </footer>
+<script>
+    // Navigation menu toggle
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('nav ul');
+    navToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+
+    // TOC toggle for mobile
+    const tocToggle = document.querySelector('.toc-toggle');
+    const toc = document.querySelector('.toc');
+    tocToggle.addEventListener('click', () => {
+        toc.classList.toggle('active');
+    });
+
+    // TOC smooth scrolling
+    const tocItems = document.querySelectorAll('.toc li a');
+    tocItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>

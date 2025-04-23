@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -7,14 +6,22 @@
     <title>Java技术站</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
+        html, body {
             font-family: 'PingFang SC', Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #F7F9FC;
             color: #333;
             line-height: 1.6;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            padding-bottom: 100px;
         }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
         /* 顶部 */
         .top-bar {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
@@ -28,11 +35,13 @@
             top: 0;
             z-index: 1000;
         }
+
         .top-bar h1 {
             margin: 0;
             font-size: 1.8em;
             color: white;
         }
+
         /* 导航 */
         nav {
             background-color: #FFFFFF;
@@ -43,32 +52,48 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             z-index: 999;
         }
+
+        nav .hamburger {
+            display: none;
+            font-size: 1.5em;
+            color: #4A90E2;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
         nav ul {
             list-style-type: none;
             padding: 0;
             display: flex;
             justify-content: center;
             margin: 0;
+            flex-wrap: wrap;
         }
+
         nav li {
             position: relative;
-            margin: 0 20px;
+            margin: 0 8px;
         }
+
         nav a {
             text-decoration: none;
             color: #4A90E2;
             font-weight: bold;
-            padding: 10px 15px;
+            padding: 10px 12px;
             display: flex;
             align-items: center;
             transition: color 0.3s;
+            font-size: 0.9em;
         }
+
         nav a:hover {
             color: #F5A623;
         }
+
         nav i {
             margin-right: 8px;
         }
+
         nav .dropdown {
             display: none;
             position: absolute;
@@ -79,51 +104,62 @@
             left: 0;
             border-radius: 8px;
         }
+
         nav li:hover .dropdown {
             display: block;
         }
+
         nav .dropdown a {
             padding: 10px;
             color: #4A90E2;
             font-weight: normal;
         }
+
         nav .dropdown a:hover {
             background-color: #E9F1FF;
             color: #F5A623;
         }
+
         /* 内容区 */
         .container {
-            max-width: 1500px; /* 宽度从1300px增至1500px */
+            max-width: 1200px;
             margin: 120px auto 20px;
             display: flex;
-            gap: 30px;
+            gap: 20px;
             padding: 0 20px;
+            flex-direction: row;
         }
+
         main {
-            flex: 2; /* main随容器宽度自适应扩展 */
+            flex: 3;
         }
+
         aside {
-            width: 350px; /* aside固定宽度350px */
-            flex-shrink: 0; /* 防止宽度压缩 */
+            width: 25%;
+            flex-shrink: 0;
         }
+
         .section {
             background-color: #FFFFFF;
-            padding: 25px;
+            padding: 20px;
             margin-bottom: 20px;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-top: 40px;
+            margin-top: 30px;
         }
+
         .section h2 {
             color: #4A90E2;
-            font-size: 2em;
-            margin: 0 0 20px;
+            font-size: 1.8em;
+            margin: 0 0 15px;
             display: flex;
             align-items: center;
         }
+
         .section h2 i {
-            margin-right: 10px;
+            margin-right: 8px;
         }
+
         /* 文章 */
         .article {
             padding: 15px;
@@ -132,26 +168,36 @@
             margin-bottom: 15px;
             transition: all 0.3s;
         }
+
+        .article.hidden {
+            display: none; /* 隐藏未加载的文章 */
+        }
+
         .article:hover {
             background-color: #E9F1FF;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
         .article h3 {
             margin: 0 0 10px;
-            font-size: 1.6em;
+            font-size: 1.4em;
         }
+
         .article a {
             color: #4A90E2;
             text-decoration: none;
         }
+
         .article a:hover {
             color: #F5A623;
         }
+
         .article-meta {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #666;
             margin: 5px 0;
         }
+
         .article-tags a {
             display: inline-block;
             padding: 5px 10px;
@@ -160,52 +206,209 @@
             color: #4A90E2;
             border-radius: 12px;
             text-decoration: none;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
+
         .article-share a {
             color: #7B68EE;
             margin-right: 10px;
             transition: color 0.3s;
+            font-size: 1.2em;
         }
+
         .article-share a:hover {
             color: #F5A623;
         }
+
+        /* 加载图标和无内容提示 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-size: 1.5em;
+            color: #4A90E2;
+        }
+
+        .no-more {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 1em;
+        }
+
         /* 侧边栏 */
         aside .section {
-            padding: 20px;
+            padding: 15px;
         }
+
         aside ul {
             list-style-type: none;
             padding: 0;
         }
+
         aside li {
-            margin: 10px 0;
+            margin: 8px 0;
         }
+
         aside a {
             color: #4A90E2;
             text-decoration: none;
             transition: color 0.3s;
         }
+
         aside a:hover {
             color: #F5A623;
         }
+
         /* 页脚 */
         footer {
             background: linear-gradient(135deg, #7B68EE, #4A90E2);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
             border-radius: 15px 15px 0 0;
             margin-top: 20px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
         }
+
         footer .social a {
             color: #F5A623;
             margin: 0 10px;
-            font-size: 1.5em;
+            font-size: 1.4em;
             transition: color 0.3s;
         }
+
         footer .social a:hover {
             color: #FF7F50;
+        }
+
+        /* 响应式设计 */
+        @media screen and (max-width: 768px) {
+            .top-bar h1 {
+                font-size: 1.4em;
+            }
+
+            nav {
+                top: 50px;
+                padding: 10px 0;
+            }
+
+            nav .hamburger {
+                display: block;
+                position: absolute;
+                left: 10px;
+                top: 10px;
+            }
+
+            nav ul {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                background-color: #FFFFFF;
+                width: 100%;
+                padding: 10px 0;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            nav li {
+                margin: 5px 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            nav a {
+                font-size: 1em;
+                padding: 8px;
+            }
+
+            nav .dropdown {
+                position: static;
+                box-shadow: none;
+                background-color: #F7F9FC;
+                border-radius: 0;
+                width: 100%;
+                display: none;
+            }
+
+            nav li:hover .dropdown {
+                display: none;
+            }
+
+            nav li.active .dropdown {
+                display: block;
+            }
+
+            .container {
+                max-width: 100%;
+                flex-direction: column;
+                margin-top: 100px;
+                padding: 0 5px;
+                gap: 10px;
+            }
+
+            main {
+                flex: 1;
+                width: 100%;
+            }
+
+            aside {
+                width: 100%;
+            }
+
+            .section {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .section h2 {
+                font-size: 1.5em;
+            }
+
+            .article h3 {
+                font-size: 1.2em;
+            }
+
+            .article-meta {
+                font-size: 0.8em;
+            }
+
+            .article-tags a {
+                font-size: 0.75em;
+                padding: 4px 8px;
+            }
+
+            footer {
+                padding: 15px;
+                margin-top: 30px;
+            }
+
+            footer .social a {
+                font-size: 1.2em;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .top-bar h1 {
+                font-size: 1.2em;
+            }
+
+            nav a {
+                font-size: 0.9em;
+            }
+
+            .section h2 {
+                font-size: 1.3em;
+            }
+
+            .article h3 {
+                font-size: 1.1em;
+            }
         }
     </style>
 </head>
@@ -214,11 +417,16 @@
     <h1>Java技术站</h1>
 </div>
 <nav>
+    <div class="hamburger">
+        <i class="fas fa-bars"></i>
+    </div>
     <ul>
         <li><a href="#"><i class="fas fa-code"></i> 核心Java</a>
             <div class="dropdown">
-                <a href="#">Java 22新特性</a>
-                <a href="#">并发编程</a>
+                <a href="java-new-index.html">Java新特性</a>
+                <a href="java-concurrency-index.html">并发编程</a>
+                <a href="java-base-index.html">java基础</a>
+                <a href="java-jvm-index.html">JVM</a>
             </div>
         </li>
         <li><a href="#"><i class="fas fa-leaf"></i> Spring框架</a>
@@ -233,10 +441,9 @@
                 <a href="#">JPA</a>
             </div>
         </li>
-        <li><a href="#"><i class="fas fa-tools"></i> 构建工具</a>
+        <li><a href="#"><i class="fas fa-tools"></i> 工具</a>
             <div class="dropdown">
-                <a href="#">Maven</a>
-                <a href="#">Gradle</a>
+                <a href="sentinel-index.html">Sentinel限流工具</a>
             </div>
         </li>
         <li><a href="#"><i class="fas fa-cloud"></i> 微服务与云</a>
@@ -247,7 +454,7 @@
         </li>
         <li><a href="#"><i class="fas fa-file"></i> 源码研究</a>
             <div class="dropdown">
-                <a href="#">XXL-JOB</a>
+                <a href="xxljob-sourcel-index.html">XXL-JOB</a>
             </div>
         </li>
         <li><a href="online-issues-index.html"><i class="fas fa-bug"></i> 线上问题记录</a>
@@ -260,6 +467,10 @@
 </nav>
 <div class="container">
     <main>
+        <section class="section about">
+            <h2><i class="fas fa-user-circle"></i> 关于我</h2>
+            <p>我是felix，一名Java程序员，专注于分享核心Java、Spring Boot和微服务的经验，助你成为更好的开发者。</p>
+        </section>
         <section class="section articles">
             <h2><i class="fas fa-book-open"></i> 最新文章</h2>
             <div class="article">
@@ -274,6 +485,27 @@
                     <a href="#"><i class="fas fa-share-alt"></i></a>
                     <a href="#"><i class="fas fa-thumbs-up"></i></a>
                 </div>
+            </div>
+            <!-- 以下文章初始隐藏 -->
+            <!--  <div class="article hidden">
+                <h3><a href="c/20241210111234.html">Java 23预览特性解析</a></h3>
+                <div class="article-meta">发布于：2024-12-10</div>
+                <p>探索Java 23的预览特性，包括新的API和性能改进。</p>
+                <div class="article-tags">
+                    <a href="java-new-index.html">Java 23</a>
+                    <a href="#">新特性</a>
+                </div>
+                <div class="article-share">
+                    <a href="#"><i class="fas fa-share-alt"></i></a>
+                    <a href="#"><i class="fas fa-thumbs-up"></i></a>
+                </div>
+            </div> -->
+
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="no-more">
+                没有更多内容了
             </div>
         </section>
     </main>
@@ -307,5 +539,61 @@
     <p>联系方式： | <a href="#">服务条款</a></p>
     <p>© 2025 Java技术站 版权所有</p>
 </footer>
+<script>
+    // 汉堡菜单切换
+    const hamburger = document.querySelector('.hamburger');
+    const navUl = document.querySelector('nav ul');
+
+    hamburger.addEventListener('click', () => {
+        navUl.classList.toggle('active');
+    });
+
+    // 移动端下拉菜单切换
+    document.querySelectorAll('nav li').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) {
+                const dropdown = this.querySelector('.dropdown');
+                if (dropdown) {
+                    e.preventDefault();
+                    this.classList.toggle('active');
+                }
+            }
+        });
+    });
+
+    // 文章懒加载
+    const articles = document.querySelectorAll('.article');
+    const loading = document.querySelector('.loading');
+    const noMore = document.querySelector('.no-more');
+    let loadedCount = 10; // 初始显示10篇
+
+    function loadMoreArticles() {
+        if (loadedCount >= articles.length) {
+            loading.style.display = 'none';
+            noMore.style.display = 'block';
+            return;
+        }
+
+        loading.style.display = 'block';
+        setTimeout(() => {
+            for (let i = loadedCount; i < loadedCount + 10 && i < articles.length; i++) {
+                articles[i].classList.remove('hidden');
+            }
+            loadedCount += 10;
+            loading.style.display = 'none';
+            if (loadedCount >= articles.length) {
+                noMore.style.display = 'block';
+            }
+        }, 1000); // 模拟加载延迟
+    }
+
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const pageHeight = document.body.offsetHeight;
+        if (scrollPosition >= pageHeight - 200 && loadedCount < articles.length) {
+            loadMoreArticles();
+        }
+    });
+</script>
 </body>
 </html>
